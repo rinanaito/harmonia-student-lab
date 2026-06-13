@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../models/media_item.dart';
+import '../models/student.dart';
 import '../services/api_service.dart';
 import '../services/app_state.dart';
 import '../theme/app_theme.dart';

@@ -150,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   onPressed: isLoading ? null : _parentLogin,
                                   child: isLoading
                                     ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.white))
-                                    : const Text('View My Child's Gallery →'),
+                                    : const Text('View My Child\'s Gallery →'),
                                 ),
                               ),
                             ] else ...[
