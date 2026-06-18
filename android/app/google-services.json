@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "260244666959",
+    "firebase_url": "https://harmonia-playground-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "harmonia-playground",
+    "storage_bucket": "harmonia-playground.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:260244666959:android:6d7f4e40362ed5e9abc83a",
+        "android_client_info": {
+          "package_name": "mn.harmonia.flutter.harmonia_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "260244666959-78hv3i9er9rq45c32kd5f98uo33h4o2q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYCOQOVldsXL2MaIbzndRaoIehprNzqFw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "260244666959-78hv3i9er9rq45c32kd5f98uo33h4o2q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
