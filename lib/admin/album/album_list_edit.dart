@@ -21,10 +21,7 @@ Future<List<drive.File>> getDriveFolders() async {
 
   final api = drive.DriveApi(client);
 
-  final result = await api.files.list(
-    q: "mimeType='application/vnd.google-apps.folder'",
-    spaces: 'drive',
-  );
+  final result = await api.files.list(q: "mimeType='application/vnd.google-apps.folder'", spaces: 'drive');
 
   return result.files ?? [];
 }
@@ -66,31 +63,28 @@ class _AlbumEditPageState extends State<AlbumEditPage> {
 
   Future<void> setupDrive() async {
     final folders = await getDriveFolders();
-    widget.selectedFolder = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => FolderSelector(folders, widget.album.key),
-      ),
-    );
+    widget.selectedFolder = await Navigator.push(context, MaterialPageRoute(builder: (_) => FolderSelector(folders, widget.album.key)));
     if (widget.selectedFolder != null && nameController.text.isEmpty) {
       nameController.text = widget.selectedFolder?.name ?? "";
     }
   }
+
   Future<List<drive.File>> getFilesInFolder(
-      // drive.DriveApi api,
-      String folderId,
-      ) async {
+    // drive.DriveApi api,
+    String folderId,
+  ) async {
+    if (await googleSignIn.isSignedIn()) {
+      final account = await googleSignIn.signIn();
+      final auth = await account?.authHeaders;
 
-    final client = GoogleAuthClient(authHeaders);
+      final client = GoogleAuthClient(auth!);
 
-    final api = drive.DriveApi(client);
-    final result = await api.files.list(
-      q: "'$folderId' in parents and trashed = false",
-      spaces: 'drive',
-      $fields: 'files(id,name,mimeType,thumbnailLink)',
-    );
-
-    return result.files ?? [];
+      final api = drive.DriveApi(client);
+      final result = await api.files.list(q: "'$folderId' in parents and trashed = false", spaces: 'drive', $fields: 'files(id,name,mimeType,thumbnailLink)');
+      return result.files ?? [];
+    } else {
+      return [];
+    }
   }
 
   @override
@@ -98,10 +92,7 @@ class _AlbumEditPageState extends State<AlbumEditPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F6EF),
 
-      appBar: AppBar(
-        title: Text("${widget.album.key.isEmpty ? "Add" : "Edit"} Album"),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: Text("${widget.album.key.isEmpty ? "Add" : "Edit"} Album"), elevation: 0),
 
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -109,10 +100,7 @@ class _AlbumEditPageState extends State<AlbumEditPage> {
           children: [
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-              ),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
 
               child: Column(
                 children: [
@@ -125,30 +113,31 @@ class _AlbumEditPageState extends State<AlbumEditPage> {
 
                   const SizedBox(height: 18),
                   TextField(
-                    decoration: InputDecoration(
-                      labelText: "folder name",
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: InputDecoration(labelText: "folder name", border: OutlineInputBorder()),
                     controller: nameController,
                   ),
-                  if (widget.selectedFolder != null )
-                  StreamBuilder(stream: getFilesInFolder(widget.selectedFolder.id), builder: ())
-                  GridView.builder(
-                    padding: const EdgeInsets.all(8),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                        ),
-                    itemCount: widget.selectedFolder?.length ?? 0,
-                    itemBuilder: (context, index) {
-                      return ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.asset(images[index], fit: BoxFit.cover),
-                      );
-                    },
-                  ),
+                  if (widget.selectedFolder != null)
+                    FutureBuilder(
+                      future: getFilesInFolder(widget.selectedFolder?.id ?? ""),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        final files = snapshot.data!;
+                        return GridView.builder(
+                          padding: const EdgeInsets.all(8),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 8, mainAxisSpacing: 8),
+                          itemCount: files.length ?? 0,
+                          itemBuilder: (context, index) {
+                            final file = files[index];
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: file.hasThumbnail ?? false ? Image.network(file.thumbnailLink ?? "", fit: BoxFit.cover) : null,
+                            );
+                          },
+                        );
+                      },
+                    ),
                 ],
               ),
             ),
@@ -169,18 +158,11 @@ class _AlbumEditPageState extends State<AlbumEditPage> {
       if (!context.mounted) return;
 
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(backgroundColor: Colors.green, content: Text("Updated")),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.green, content: Text("Updated")));
     } catch (e) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text("Can't update: $e"),
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text("Can't update: $e")));
     }
   }
 }

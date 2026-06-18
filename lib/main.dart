@@ -13,13 +13,11 @@ import 'admin.dart';
 import 'firebase_options.dart';
 
 late DatabaseReference dbRef;
-final  db = dbService();
+final db = dbService();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-await Firebase.initializeApp(
-  options: DefaultFirebaseOptions.currentPlatform,
-);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -59,7 +57,6 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       initialized = true;
     });
-
   }
 
   @override
@@ -72,11 +69,13 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'Harmonia',
       // theme: ThemeData(
       //   colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       // ),
-      home: !kIsWeb ? HarmoniaScreen() : AdminScreen(),
+      home:
+          // !kIsWeb ? HarmoniaScreen() :
+          AdminScreen(),
     );
   }
 }
