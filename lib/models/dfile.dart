@@ -1,6 +1,7 @@
 class DFile {
   String key = "";
   String name = "";
+  String thumbnail = "";
   String type = "";
 
   DFile();
@@ -9,9 +10,10 @@ class DFile {
     return DFile()
       ..key = key
       ..name = data['name'] ?? ''
+      ..thumbnail = data['thumbnail '] ?? ''
       ..type = data['type'];
   }
   Map<String, dynamic> toMap() {
-    return {'name': name, 'type': type};
+    return {'name': name, 'thumbnail ': thumbnail, 'type': type};
   }
 }

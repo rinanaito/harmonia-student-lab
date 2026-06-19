@@ -25,7 +25,6 @@ class MediaTagPage extends StatefulWidget {
 
 class _MediaTagPageState extends State<MediaTagPage> {
   drive.File? selectedFile;
-  String fileExtension = "";
   @override
   void initState() {
     super.initState();
@@ -76,8 +75,8 @@ class _MediaTagPageState extends State<MediaTagPage> {
           children: [
             Center(
               child: Container(
-                height: min(height, width) * 0.6,
-                width: min(height, width) * 0.6,
+                height: height > width ? width : min(height, width) * 0.6,
+                width: height > width ? width : min(height, width) * 0.6,
                 decoration: BoxDecoration(
                   border: BoxBorder.all(color: Colors.black12),
                   borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -86,8 +85,8 @@ class _MediaTagPageState extends State<MediaTagPage> {
                   children: [
                     Positioned.fill(
                       child: CachedNetworkImage(
-                        imageUrl: "https://drive.google.com/thumbnail?id=${selectedFile?.id ?? ""}&sz=w1000",
-                        fit: BoxFit.cover,
+                        imageUrl: selectedFile?.thumbnailLink?.replaceAll(RegExp(r'=s\d+$'), '=s1200') ?? "https://drive.google.com/thumbnail?id=${selectedFile?.id ?? ""}&sz=w1000",
+                        fit: BoxFit.contain,
                         placeholder: (context, _) => const CircularProgressIndicator(strokeWidth: 2),
                         errorWidget: (context, _, __) => Center(
                           child: GestureDetector(
@@ -97,62 +96,64 @@ class _MediaTagPageState extends State<MediaTagPage> {
                         ),
                       ),
                     ),
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      child: Center(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5)),
-                            color: Colors.blue,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Text(selectedFile?.extension ?? "", maxLines: 1, style: TextStyle(color: Colors.white)),
+                    if (widget.files.length > 1)
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: Center(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5)),
+                              color: Colors.blue,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Text(selectedFile?.extension ?? "", maxLines: 1, style: TextStyle(color: Colors.white)),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Positioned.fill(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 1,
-                            child: GestureDetector(
-                              onTap: () => indexChange(increase: false),
-                              child: Container(
-                                decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.black45, Colors.black.withAlpha(0)])),
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(5.0),
-                                    child: Icon(Icons.keyboard_arrow_left, color: Colors.white, size: 35),
+                    if (widget.files.length > 1)
+                      Positioned.fill(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: GestureDetector(
+                                onTap: () => indexChange(increase: false),
+                                child: Container(
+                                  decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.black45, Colors.black.withAlpha(0)])),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: Icon(Icons.keyboard_arrow_left, color: Colors.white, size: 35),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          Expanded(flex: 3, child: Container()),
-                          Expanded(
-                            flex: 1,
-                            child: GestureDetector(
-                              onTap: () => indexChange(increase: true),
-                              child: Container(
-                                decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.black.withAlpha(0), Colors.black45])),
-                                child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(5.0),
-                                    child: Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 35),
+                            Expanded(flex: 3, child: Container()),
+                            Expanded(
+                              flex: 1,
+                              child: GestureDetector(
+                                onTap: () => indexChange(increase: true),
+                                child: Container(
+                                  decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.black.withAlpha(0), Colors.black45])),
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(5.0),
+                                      child: Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 35),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -184,6 +185,7 @@ class _MediaTagPageState extends State<MediaTagPage> {
       DFile()
         ..key = file
         ..name = selectedFile?.name ?? ""
+        ..thumbnail = selectedFile?.thumbnailLink ?? ""
         ..type = selectedFile?.extension ?? "",
     );
     if (dbService.medias.any((m) => widget.files.any((f) => m.fileId == f.id))) {

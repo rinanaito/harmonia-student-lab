@@ -74,7 +74,7 @@ class ParentFolderPage extends StatelessWidget {
                                       children: [
                                         Positioned.fill(
                                           child: CachedNetworkImage(
-                                            imageUrl: "https://drive.google.com/thumbnail?id=${media.fileId}&sz=w200",
+                                            imageUrl: file.thumbnail.isNotEmpty ? file.thumbnail.replaceAll(RegExp(r'=s\d+$'), '=s1200') : "https://drive.google.com/thumbnail?id=${media.fileId}&sz=w200",
                                             placeholder: (context, url) => Center(child: CircularProgressIndicator()),
                                             fit: BoxFit.contain,
                                             errorWidget: (context, url, error) => Icon(Icons.error),
