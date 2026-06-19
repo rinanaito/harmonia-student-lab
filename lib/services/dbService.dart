@@ -75,7 +75,7 @@ class dbService {
   }
 
   Future<void> removeAlbum(Album album) async {
-    db.child('albums/${album.key}').remove();
+    // db.child('albums/${album.key}').remove();
   }
 
   Future<void> addAlbum(Album album) async {
@@ -133,6 +133,6 @@ class dbService {
   }
 
   Future<void> removeMedia(Media media) async {
-    // db.child('medias/${media.key}').remove();
+    db.child('medias/${media.key}').remove();
   }
 }
