@@ -5,7 +5,7 @@ import '../models/media.dart';
 import '../models/student.dart';
 
 class dbService {
-  final DatabaseReference db = FirebaseDatabase.instance.ref();
+  final DatabaseReference db = FirebaseDatabase.instance.ref("harmonia");
   static List<Student> students = <Student>[];
   static List<DFile> files = <DFile>[];
   static List<Media> medias = <Media>[];
