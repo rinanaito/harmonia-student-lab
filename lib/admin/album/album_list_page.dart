@@ -19,22 +19,14 @@ class AlbumListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Albums"),
-        elevation: 0,
-        actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blueAccent,
-              foregroundColor: Colors.white, // text + icon color
-            ),
-            child: Row(children: [const Icon(Icons.add), const Text("Add")]),
-            onPressed: () {
-              addGallery(context, Album());
-            },
-          ),
-          SizedBox(width: 10),
-        ],
+      appBar: AppBar(title: const Text("Albums"), elevation: 0),
+      floatingActionButton: FloatingActionButton.large(
+        onPressed: () {
+          addGallery(context, Album());
+        },
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.blueAccent,
+        child: Icon(Icons.add),
       ),
       backgroundColor: const Color(0xFFF8F6EF),
 
@@ -55,12 +47,17 @@ class AlbumListPage extends StatelessWidget {
                     }
 
                     final albums = snapshot.data!;
-                    return GridView.count(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      padding: EdgeInsets.all(10),
-                      children: List.generate(albums.length, (index) {
+                    var width = MediaQuery.of(context).size.width;
+                    return GridView.builder(
+                      padding: const EdgeInsets.all(8),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: width > 600 ? (width / 300).toInt() : 2,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: 1.2, // width / height
+                      ),
+                      itemCount: albums.length,
+                      itemBuilder: (context, index) {
                         final a = albums[index];
 
                         return GestureDetector(
@@ -70,29 +67,23 @@ class AlbumListPage extends StatelessWidget {
                           child: Container(
                             margin: const EdgeInsets.only(bottom: 14),
                             padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(22)),
-                            child: Row(
+                            decoration: BoxDecoration(
+                              color: Colors.black.withAlpha(10),
+                              borderRadius: BorderRadius.circular(22),
+                              border: Border.all(color: Colors.black.withAlpha(20)),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Expanded(
-                                  child: Text(a.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-                                ),
-
-                                // IconButton(
-                                //   icon: const Icon(Icons.edit_outlined),
-                                //   onPressed: () {
-                                //     Navigator.push(
-                                //       context,
-                                //       MaterialPageRoute(
-                                //         builder: (_) => AlbumEditPage(a),
-                                //       ),
-                                //     );
-                                //   },
-                                // ),
+                                Icon(Icons.folder_rounded, size: 30),
+                                SizedBox(height: 10),
+                                Text(a.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
                               ],
                             ),
                           ),
                         );
-                      }),
+                      },
                     );
                   },
                 ),

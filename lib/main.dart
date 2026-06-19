@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 
 import 'package:harmonia_flutter/home.dart';
-import 'package:harmonia_flutter/services/dbService.dart';
+import 'package:harmonia_flutter/services/db_service.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'admin.dart';
@@ -26,18 +26,18 @@ Future<void> main() async {
 
   switch (uri.path) {
     case '/':
-      page =  HarmoniaScreen();
+      page = HarmoniaScreen();
       break;
 
     case '/admin':
-      page =  AdminScreen();
+      page = AdminScreen();
       break;
 
     default:
-      page =  HarmoniaScreen();
+      page = HarmoniaScreen();
   }
 
-  runApp( MyApp(page));
+  runApp(MyApp(page));
 }
 
 class MyApp extends StatefulWidget {
@@ -73,7 +73,6 @@ class _MyAppState extends State<MyApp> {
     if (!kIsWeb) {
       await dbRef.keepSynced(true);
     }
-
   }
 
   @override
@@ -89,8 +88,9 @@ class _MyAppState extends State<MyApp> {
       title: 'Harmonia',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        appBarTheme: AppBarTheme(foregroundColor: Colors.white, backgroundColor: Color(0xFF153D7C)),
       ),
-      home: widget.page
+      home: widget.page,
     );
   }
 }

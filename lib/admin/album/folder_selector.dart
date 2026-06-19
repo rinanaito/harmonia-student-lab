@@ -14,7 +14,7 @@ class FolderSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Folders"), elevation: 0),
+      appBar: AppBar(title: const Text("Google Drive Folders"), elevation: 0),
       backgroundColor: const Color(0xFFF8F6EF),
 
       body: SafeArea(

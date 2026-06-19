@@ -5,10 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:harmonia_flutter/main.dart';
 
 import '../models/student.dart';
+import '../parent/parent_album_page.dart';
 import 'student_edit_page.dart';
 
 class StudentListPage extends StatelessWidget {
-  StudentListPage({super.key});
+  const StudentListPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -53,32 +54,46 @@ class StudentListPage extends StatelessWidget {
                           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(22)),
                           child: Row(
                             children: [
-                              CircleAvatar(
-                                radius: 24,
-                                backgroundColor: Colors.blue.shade50,
-                                child: Text(
-                                  s.name.isEmpty ? "*" : s.name.substring(0, 1),
-                                  style: const TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-
-                              const SizedBox(width: 16),
-
                               Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(s.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-                                    const SizedBox(height: 4),
-                                    Text(s.code, style: TextStyle(color: Colors.grey.shade600)),
-                                  ],
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (_) => StudentEditPage(s)));
+                                  },
+                                  child: Container(
+                                    color: Colors.transparent,
+                                    child: Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 24,
+                                          backgroundColor: Colors.blue.shade50,
+                                          child: Text(
+                                            s.name.isEmpty ? "*" : s.name.substring(0, 1),
+                                            style: const TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+
+                                        const SizedBox(width: 16),
+
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(s.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                                              const SizedBox(height: 4),
+                                              Text(s.code, style: TextStyle(color: Colors.grey.shade600)),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
 
                               IconButton(
-                                icon: const Icon(Icons.edit_outlined),
+                                icon: const Icon(Icons.collections),
                                 onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (_) => StudentEditPage(s)));
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) => ParentAlbumPage(student: s)));
                                 },
                               ),
                             ],

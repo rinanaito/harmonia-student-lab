@@ -5,8 +5,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:harmonia_flutter/admin/student_list_page.dart';
-import 'package:harmonia_flutter/parent_album_page.dart';
-import 'package:harmonia_flutter/services/dbService.dart';
+import 'package:harmonia_flutter/parent/parent_album_page.dart';
+import 'package:harmonia_flutter/services/db_service.dart';
 
 class HarmoniaScreen extends StatefulWidget {
   const HarmoniaScreen({super.key});
@@ -16,8 +16,9 @@ class HarmoniaScreen extends StatefulWidget {
 }
 
 class _HarmoniaScreenState extends State<HarmoniaScreen> {
-  bool isParent = true;
+  bool isParent = false;
   final controller = TextEditingController();
+  final FocusNode _focus = FocusNode();
 
   FirebaseException? _error;
   bool initialized = false;
@@ -40,6 +41,19 @@ class _HarmoniaScreenState extends State<HarmoniaScreen> {
     setState(() {
       initialized = true;
     });
+
+    _focus.addListener(() {
+      setState(() {
+        isParent = _focus.hasFocus;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    _focus.dispose();
+    super.dispose();
   }
 
   Future<void> search(BuildContext context, {String text = ""}) async {
@@ -63,8 +77,12 @@ class _HarmoniaScreenState extends State<HarmoniaScreen> {
         ),
         child: Column(
           children: [
+            SizedBox(height: 50),
             Expanded(
-              child: Center(
+              child: AnimatedAlign(
+                duration: Duration(milliseconds: 800),
+                curve: Curves.easeOutExpo,
+                alignment: isParent ? Alignment.topCenter : Alignment.center,
                 child: Container(
                   width: 600,
                   padding: const EdgeInsets.all(36),
@@ -111,12 +129,13 @@ class _HarmoniaScreenState extends State<HarmoniaScreen> {
                       const SizedBox(height: 14),
 
                       TextField(
+                        focusNode: _focus,
                         onSubmitted: (text) {
                           search(context, text: text);
                         },
                         controller: controller,
                         decoration: InputDecoration(
-                          hintText: "Сурагчийн код оруулна уу",
+                          hintText: "Enter student nickname",
                           filled: true,
                           fillColor: const Color(0xFFF4F3EF),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
@@ -145,7 +164,7 @@ class _HarmoniaScreenState extends State<HarmoniaScreen> {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                           ),
                           child: const Text(
-                            "View Gallery →",
+                            "Search",
                             style: TextStyle(color: Color(0xFF07113A), fontSize: 28, fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -155,6 +174,7 @@ class _HarmoniaScreenState extends State<HarmoniaScreen> {
                 ),
               ),
             ),
+            SizedBox(height: 50),
           ],
         ),
       ),

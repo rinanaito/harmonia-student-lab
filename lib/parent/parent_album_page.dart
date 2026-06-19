@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:harmonia_flutter/main.dart';
-import 'package:harmonia_flutter/parent/parent_folder.dart';
-import 'package:harmonia_flutter/services/dbService.dart';
+import 'package:harmonia_flutter/parent/parent_folder_page.dart';
+import 'package:harmonia_flutter/services/db_service.dart';
 
-import '../models/album.dart';
-import 'models/media.dart';
-import 'models/student.dart';
+import '../../models/album.dart';
+import '../models/media.dart';
+import '../models/student.dart';
 
 class ParentAlbumPage extends StatelessWidget {
   late Student student;
@@ -49,45 +49,48 @@ class ParentAlbumPage extends StatelessWidget {
                         }
 
                         final albums = snapshot.data!.where((e) => studentMedia.any((s) => s.folderId == e.key)).toList();
-
-                        return GridView.count(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                          padding: EdgeInsets.all(10),
-                          children: List.generate(albums.length, (index) {
+                        var width = MediaQuery.of(context).size.width;
+                        return GridView.builder(
+                          padding: const EdgeInsets.all(8),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: width > 600 ? (width / 300).toInt() : 2,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 1.2, // width / height
+                          ),
+                          itemCount: albums.length,
+                          itemBuilder: (context, index) {
                             final album = albums[index];
-                            var medias = studentMedia.where((e) => e.folderId == album.key).toList();
                             return GestureDetector(
                               onTap: () {
+                                var medias = studentMedia.where((e) => e.folderId == album.key).toList();
                                 openFolder(context, album, medias);
                               },
                               child: Container(
                                 margin: const EdgeInsets.only(bottom: 14),
                                 padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(22)),
-                                child: Row(
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withAlpha(10),
+                                  borderRadius: BorderRadius.circular(22),
+                                  border: Border.all(color: Colors.black.withAlpha(20)),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Expanded(
-                                      child: Text(album.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                                    Icon(Icons.folder_rounded, size: 30),
+                                    SizedBox(height: 10),
+                                    Text(
+                                      album.name,
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                                     ),
-
-                                    // IconButton(
-                                    //   icon: const Icon(Icons.edit_outlined),
-                                    //   onPressed: () {
-                                    //     Navigator.push(
-                                    //       context,
-                                    //       MaterialPageRoute(
-                                    //         builder: (_) => AlbumEditPage(a),
-                                    //       ),
-                                    //     );
-                                    //   },
-                                    // ),
                                   ],
                                 ),
                               ),
                             );
-                          }),
+                          },
                         );
                       },
                     );

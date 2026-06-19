@@ -1,7 +1,9 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
-import 'package:harmonia_flutter/services/dbService.dart';
+import 'package:harmonia_flutter/services/db_service.dart';
 import 'package:web/web.dart' as web;
 
 import '../../models/album.dart';
@@ -46,8 +48,18 @@ class _MediaTagPageState extends State<MediaTagPage> {
   @override
   Widget build(BuildContext context) {
     selectedFile = widget.files[widget.showedIndex];
+    var width = MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: const Color(0xFFF8F6EF),
+      floatingActionButton: FloatingActionButton.large(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.green,
+        child: Icon(Icons.check),
+      ),
       appBar: AppBar(
         title: GestureDetector(onTap: () => openNewTab("https://drive.google.com/thumbnail?id=${selectedFile?.id ?? ""}&sz=w1000"), child: Text(selectedFile?.name ?? "")),
         elevation: 0,
@@ -57,11 +69,15 @@ class _MediaTagPageState extends State<MediaTagPage> {
           border: BoxBorder.all(color: Colors.black12),
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
-        child: Column(
+        child: Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            AspectRatio(
-              aspectRatio: 1,
+            Center(
               child: Container(
+                height: min(height, width) * 0.6,
+                width: min(height, width) * 0.6,
                 decoration: BoxDecoration(
                   border: BoxBorder.all(color: Colors.black12),
                   borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -81,7 +97,6 @@ class _MediaTagPageState extends State<MediaTagPage> {
                         ),
                       ),
                     ),
-
                     Positioned(
                       top: 0,
                       left: 0,
@@ -142,23 +157,20 @@ class _MediaTagPageState extends State<MediaTagPage> {
                 ),
               ),
             ),
-            Row(
-              children: [
-                Expanded(
-                  child: StreamBuilder(
-                    stream: dbService().getStudents(),
-                    builder: (context, snapshot) {
-                      final tags = dbService.medias.where((m) => m.fileId == selectedFile?.id).toList(growable: true);
-                      return MultiTagSelector(
-                        initialSelected: tags.map((e) => e.studentId).toList(),
-                        onAdd: (studentId) => addStudent(studentId, selectedFile?.id ?? ""),
-                        onRemoved: (studentId) => removeStudent(studentId, selectedFile?.id ?? ""),
-                        tags: dbService.students,
-                      );
-                    },
-                  ),
-                ),
-              ],
+            SizedBox(
+              width: height > width ? width : min(height, width) * 0.6,
+              child: StreamBuilder(
+                stream: dbService().getStudents(),
+                builder: (context, snapshot) {
+                  final tags = dbService.medias.where((m) => m.fileId == selectedFile?.id).toList(growable: true);
+                  return MultiTagSelector(
+                    initialSelected: tags.map((e) => e.studentId).toList(),
+                    onAdd: (studentId) => addStudent(studentId, selectedFile?.id ?? ""),
+                    onRemoved: (studentId) => removeStudent(studentId, selectedFile?.id ?? ""),
+                    tags: dbService.students,
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -168,14 +180,14 @@ class _MediaTagPageState extends State<MediaTagPage> {
 
   Future<void> addStudent(String id, String file) async {
     var m = Media(studentId: id, fileId: file, folderId: widget.album.key);
+    dbService().addFile(
+      DFile()
+        ..key = file
+        ..name = selectedFile?.name ?? ""
+        ..type = selectedFile?.extension ?? "",
+    );
     if (dbService.medias.any((m) => widget.files.any((f) => m.fileId == f.id))) {
     } else {
-      dbService().addFile(
-        DFile()
-          ..key = file
-          ..name = selectedFile?.name ?? ""
-          ..type = selectedFile?.extension ?? "",
-      );
       dbService().addAlbum(widget.album);
     }
     dbService().addMedia(m);
@@ -185,6 +197,7 @@ class _MediaTagPageState extends State<MediaTagPage> {
     var m = Media(studentId: id, fileId: file, folderId: widget.album.key);
     dbService().removeMedia(m);
     if (dbService.medias.any((m) => widget.files.any((f) => m.fileId == f.id))) {
+    } else {
       dbService().removeAlbum(widget.album);
     }
   }

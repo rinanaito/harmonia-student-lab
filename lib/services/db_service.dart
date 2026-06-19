@@ -5,7 +5,7 @@ import '../models/media.dart';
 import '../models/student.dart';
 
 class dbService {
-  final DatabaseReference db = FirebaseDatabase.instance.ref("harmonia");
+  final DatabaseReference db = FirebaseDatabase.instance.ref();
   static List<Student> students = <Student>[];
   static List<DFile> files = <DFile>[];
   static List<Media> medias = <Media>[];
@@ -101,8 +101,8 @@ class dbService {
 
   Future<List<Media>> dbMedia({bool byStudent = true, String filter = "", int limit = 0}) async {
     if (filter.isEmpty) return [];
-    var f = db.child('medias').orderByKey();
-    f = byStudent ? f.startAt("$filter++++++") : f.endAt("++++++$filter");
+    var query = byStudent ? "$filter++++++" : "++++++$filter";
+    var f = db.child('medias').orderByKey().startAt(query).endAt("$query\uf8ff");
     if (limit > 0) {
       f = f.limitToFirst(limit);
     }
