@@ -8,6 +8,7 @@ import 'dart:io';
 
 import 'package:harmonia_flutter/home.dart';
 import 'package:harmonia_flutter/services/dbService.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'admin.dart';
 import 'firebase_options.dart';
@@ -18,11 +19,30 @@ final db = dbService();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+
+  usePathUrlStrategy();
+  final uri = Uri.base;
+  Widget page;
+
+  switch (uri.path) {
+    case '/':
+      page =  HarmoniaScreen();
+      break;
+
+    case '/admin':
+      page =  AdminScreen();
+      break;
+
+    default:
+      page =  HarmoniaScreen();
+  }
+
+  runApp( MyApp(page));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  late Widget page;
+  MyApp(this.page, {super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -54,9 +74,6 @@ class _MyAppState extends State<MyApp> {
       await dbRef.keepSynced(true);
     }
 
-    setState(() {
-      initialized = true;
-    });
   }
 
   @override
@@ -70,12 +87,10 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Harmonia',
-      // theme: ThemeData(
-      //   colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      // ),
-      home:
-          // !kIsWeb ? HarmoniaScreen() :
-          AdminScreen(),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
+      home: widget.page
     );
   }
 }

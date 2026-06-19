@@ -1,1 +1,36 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"harmonia-playground","appId":"1:260244666959:android:6d7f4e40362ed5e9abc83a","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"harmonia-playground","configurations":{"android":"1:260244666959:android:6d7f4e40362ed5e9abc83a","web":"1:260244666959:web:c6e9730b06abfd1aabc83a"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "harmonia-playground",
+          "appId": "1:260244666959:android:6d7f4e40362ed5e9abc83a",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "harmonia-playground",
+          "configurations": {
+            "android": "1:260244666959:android:6d7f4e40362ed5e9abc83a",
+            "web": "1:260244666959:web:c6e9730b06abfd1aabc83a"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
