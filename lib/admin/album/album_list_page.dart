@@ -5,21 +5,60 @@ import 'package:flutter/material.dart';
 import 'package:harmonia_flutter/main.dart';
 
 import '../../models/album.dart';
+import '../../models/media.dart';
 import '../../models/student.dart';
+import '../../services/db_service.dart';
+import '../student_album_adder.dart';
 import 'open_folder_page.dart';
 import '../student_edit_page.dart';
 
-class AlbumListPage extends StatelessWidget {
+class AlbumListPage extends StatefulWidget {
   AlbumListPage({super.key});
+
+  @override
+  State<AlbumListPage> createState() => _AlbumListPageState();
+}
+
+class _AlbumListPageState extends State<AlbumListPage> {
+  List<Media> filteredMedia = [];
+  var filteredStudentId = "";
 
   addGallery(BuildContext context, Album album) {
     Navigator.push(context, MaterialPageRoute(builder: (_) => OpenFolderPage(album)));
   }
 
+  void filterByStudent(String studentId) async {
+    filteredStudentId = studentId;
+    if (studentId.isNotEmpty) {
+      var medias = await dbService().dbMedia(byStudent: true, filter: studentId);
+      setState(() {
+        filteredMedia = medias;
+      });
+    } else {
+      setState(() {
+        filteredMedia = [];
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Albums"), elevation: 0),
+      appBar: AppBar(
+        title: const Text("Albums"),
+        elevation: 0,
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.blue),
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (_) => StudentAlbumAdder(Album())));
+            },
+            child: Text("Album-Student"),
+          ),
+          SizedBox(width: 10),
+        ],
+      ),
+
       floatingActionButton: FloatingActionButton.large(
         onPressed: () {
           addGallery(context, Album());
@@ -35,7 +74,37 @@ class AlbumListPage extends StatelessWidget {
           padding: const EdgeInsets.all(18),
           child: Column(
             children: [
-              const SizedBox(height: 20),
+              StreamBuilder(
+                stream: dbService().getStudents(),
+                builder: (context, asyncSnapshot) {
+                  var students = asyncSnapshot.data ?? [];
+                  return DropdownButtonFormField(
+                    items: [
+                      DropdownMenuItem(
+                        value: "",
+                        enabled: true,
+                        child: Text("All", style: const TextStyle(fontSize: 14), overflow: TextOverflow.ellipsis, maxLines: 1),
+                      ),
+                      for (var student in students)
+                        DropdownMenuItem(
+                          value: student.key,
+                          enabled: true,
+                          child: Row(
+                            children: [
+                              Text(student.code, style: const TextStyle(fontSize: 10, color: Colors.black38)),
+                              SizedBox(width: 5),
+                              Text(student.name, style: const TextStyle(fontSize: 14), overflow: TextOverflow.ellipsis, maxLines: 1),
+                            ],
+                          ),
+                        ),
+                    ],
+                    onChanged: (v) {
+                      filterByStudent(v ?? "");
+                    },
+                    decoration: const InputDecoration(labelText: "Student", border: OutlineInputBorder()),
+                  );
+                },
+              ),
 
               Expanded(
                 child: StreamBuilder<List<Album>>(
@@ -46,7 +115,10 @@ class AlbumListPage extends StatelessWidget {
                       return const Center(child: CircularProgressIndicator());
                     }
 
-                    final albums = snapshot.data!;
+                    var albums = snapshot.data!;
+                    if (filteredMedia.isNotEmpty) {
+                      albums = albums.where((a) => filteredMedia.any((m) => m.folderId == a.key)).toList();
+                    }
                     var width = MediaQuery.of(context).size.width;
                     return GridView.builder(
                       padding: const EdgeInsets.all(8),

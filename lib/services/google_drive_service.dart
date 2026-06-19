@@ -39,7 +39,12 @@ class GoogleDriveService {
     if (client == null) await getClient();
     final api = drive.DriveApi(client!);
 
-    final result = await api.files.list(q: "mimeType='application/vnd.google-apps.folder' and trashed = false and visibility = 'anyoneWithLink'", spaces: 'drive', includeItemsFromAllDrives: false);
+    final result = await api.files.list(
+      q: "mimeType='application/vnd.google-apps.folder' and trashed = false and visibility = 'anyoneWithLink'",
+      spaces: 'drive',
+      includeItemsFromAllDrives: false,
+      orderBy: 'viewedByMeTime desc',
+    );
 
     return result.files ?? [];
   }
@@ -83,6 +88,7 @@ extension DriveFileExtension on drive.File {
       'image/png': 'png',
       'image/webp': 'webp',
       'video/mp4': 'mp4',
+      'video/quicktime': 'mov',
       'application/pdf': 'pdf',
       'text/plain': 'txt',
 
