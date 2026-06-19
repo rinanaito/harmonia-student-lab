@@ -64,12 +64,12 @@ class _StudentEditPageState extends State<StudentEditPage> {
 
                   DropdownButtonFormField(
                     value: widget.student.group.isEmpty
-                        ? null
+                        ? "2026-06"
                         : widget.student.group,
                     items: const [
                       DropdownMenuItem(
                         value: "2026-06",
-                        enabled: false,
+                        enabled: true,
                         child: Text("2026-06"),
                       ),
                       DropdownMenuItem(
