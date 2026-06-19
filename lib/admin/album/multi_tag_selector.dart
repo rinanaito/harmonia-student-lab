@@ -46,7 +46,7 @@ class _MultiTagSelectorState extends State<MultiTagSelector> {
 
   void _filter(String query) {
     setState(() {
-      _filtered = widget.tags.where((t) => t.name.toLowerCase().contains(query.toLowerCase()) || t.key.toLowerCase().contains(query.toLowerCase())).toList();
+      _filtered = widget.tags.where((t) => t.name.toLowerCase().contains(query.toLowerCase()) || t.code.toLowerCase().contains(query.toLowerCase())).toList();
     });
     _overlay?.markNeedsBuild();
   }
@@ -106,7 +106,7 @@ class _MultiTagSelectorState extends State<MultiTagSelector> {
                                 dense: true,
                                 title: Text(tag.name, style: const TextStyle(fontSize: 14), overflow: TextOverflow.ellipsis, maxLines: 1),
                                 trailing: isSel ? const Icon(Icons.check, size: 16) : null,
-                                leading: Text(tag.key, style: const TextStyle(fontSize: 10, color: Colors.black38)),
+                                leading: Text(tag.code, style: const TextStyle(fontSize: 10, color: Colors.black38)),
                                 onTap: () {
                                   _toggleTag(tag);
                                   _overlay?.markNeedsBuild();

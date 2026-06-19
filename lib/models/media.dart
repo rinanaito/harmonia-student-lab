@@ -4,20 +4,25 @@ class Media {
   String studentId = "";
   String fileId = "";
 
-  Media({this.studentId = "", this.fileId = ""}) {
+  String folderId = "";
+  String type = "";
+
+  Media({this.studentId = "", this.fileId = "", this.folderId = ""}) {
     key = "$studentId++++++$fileId";
   }
 
-  factory Media.fromKey(String key) {
+  factory Media.fromKey(String key, String folderId) {
     var s = key.toString().split("++++++").first;
     var f = key.toString().split("++++++").last;
     return Media()
       ..key = key
       ..studentId = s
-      ..fileId = f;
+      ..fileId = f
+      ..folderId = folderId;
   }
+
   @override
   String toString() {
-    return "";
+    return folderId;
   }
 }

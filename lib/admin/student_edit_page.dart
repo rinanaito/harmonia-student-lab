@@ -18,7 +18,7 @@ class _StudentEditPageState extends State<StudentEditPage> {
   @override
   void initState() {
     nameController.text = widget.student.name;
-    codeController.text = widget.student.key;
+    codeController.text = widget.student.code;
     super.initState();
   }
 
@@ -27,7 +27,7 @@ class _StudentEditPageState extends State<StudentEditPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F6EF),
 
-      appBar: AppBar(title: Text("${widget.student.key.isEmpty ? "Add":"Edit"}  Student"), elevation: 0),
+      appBar: AppBar(title: Text("${widget.student.key.isEmpty ? "Add" : "Edit"}  Student"), elevation: 0),
 
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -35,54 +35,32 @@ class _StudentEditPageState extends State<StudentEditPage> {
           children: [
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-              ),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
 
               child: Column(
                 children: [
                   TextField(
-                    decoration: InputDecoration(
-                      labelText: "Student Name",
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: InputDecoration(labelText: "Student Name", border: OutlineInputBorder()),
                     controller: nameController,
                   ),
 
                   const SizedBox(height: 18),
 
                   TextField(
-                    decoration: InputDecoration(
-                      labelText: "Student Code",
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: InputDecoration(labelText: "Student Code", border: OutlineInputBorder()),
                     controller: codeController,
                   ),
 
                   const SizedBox(height: 18),
 
                   DropdownButtonFormField(
-                    value: widget.student.group.isEmpty
-                        ? "2026-06"
-                        : widget.student.group,
+                    value: widget.student.group.isEmpty ? "2026-06" : widget.student.group,
                     items: const [
-                      DropdownMenuItem(
-                        value: "2026-06",
-                        enabled: true,
-                        child: Text("2026-06"),
-                      ),
-                      DropdownMenuItem(
-                        value: "2026-07",
-                        enabled: false,
-                        child: Text("2026-07"),
-                      ),
+                      DropdownMenuItem(value: "2026-06", enabled: true, child: Text("2026-06")),
+                      DropdownMenuItem(value: "2026-07", enabled: false, child: Text("2026-07")),
                     ],
                     onChanged: (v) {},
-                    decoration: const InputDecoration(
-                      labelText: "Group",
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: const InputDecoration(labelText: "Group", border: OutlineInputBorder()),
                   ),
 
                   const SizedBox(height: 30),
@@ -96,14 +74,9 @@ class _StudentEditPageState extends State<StudentEditPage> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.amber,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                       ),
-                      child: const Text(
-                        "Save Changes",
-                        style: TextStyle(color: Colors.black),
-                      ),
+                      child: const Text("Save Changes", style: TextStyle(color: Colors.black)),
                     ),
                   ),
                 ],
@@ -118,7 +91,7 @@ class _StudentEditPageState extends State<StudentEditPage> {
   Future<void> save() async {
     var student = super.widget.student;
     student.name = nameController.text;
-    student.key = codeController.text;
+    student.code = codeController.text;
     student.group = "2026-06";
 
     try {
@@ -127,18 +100,11 @@ class _StudentEditPageState extends State<StudentEditPage> {
       if (!context.mounted) return;
 
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(backgroundColor: Colors.green, content: Text("Updated")),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.green, content: Text("Updated")));
     } catch (e) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text("Can't update: $e"),
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.red, content: Text("Can't update: $e")));
     }
   }
 }

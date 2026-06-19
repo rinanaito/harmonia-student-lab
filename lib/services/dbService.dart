@@ -1,11 +1,13 @@
 import 'package:firebase_database/firebase_database.dart';
 import '../models/album.dart';
+import '../models/dfile.dart';
 import '../models/media.dart';
 import '../models/student.dart';
 
 class dbService {
   final DatabaseReference db = FirebaseDatabase.instance.ref();
   static List<Student> students = <Student>[];
+  static List<DFile> files = <DFile>[];
   static List<Media> medias = <Media>[];
 
   DatabaseReference dbStudent({String key = ""}) => db.child('students${key.isEmpty ? '' : '/$key'}');
@@ -38,12 +40,23 @@ class dbService {
     });
   }
 
+  Future<Student?> searchStudent(String code) async {
+    var snapshot = await db.child('students').orderByChild("code").equalTo(code).get();
+    if (snapshot.value == null) {
+      return null;
+    }
+    final data = snapshot.value as Map<dynamic, dynamic>;
+    return data.entries
+        .map((e) {
+          return Student.fromMap(e.key, e.value);
+        })
+        .toList()
+        .first;
+  }
+
   Future<void> updateStudent(Student student) async {
-    if (student.oldKey.isNotEmpty) {
-      if (student.oldKey != student.key) {
-        await db.child('students').child(student.oldKey).remove();
-      }
-      await db.child('students').child(student.key).update(student.toMap());
+    if (student.key.isEmpty) {
+      await db.child('students').push().set(student.toMap());
     } else {
       await db.child('students').child(student.key).set(student.toMap());
     }
@@ -69,6 +82,23 @@ class dbService {
     await db.child('albums').child(album.key).set(album.toMap());
   }
 
+  Future<List<DFile>> getFiles() async {
+    final snapshot = await db.child('files').get();
+    if (snapshot.value == null) {
+      return [];
+    }
+    final data = snapshot.value as Map<dynamic, dynamic>;
+    files = data.entries.map((e) {
+      return DFile.fromMap(e.key, e.value);
+    }).toList();
+
+    return files;
+  }
+
+  Future<void> addFile(DFile file) async {
+    db.child('files').child(file.key).set(file.toMap());
+  }
+
   Future<List<Media>> dbMedia({bool byStudent = true, String filter = "", int limit = 0}) async {
     if (filter.isEmpty) return [];
     var f = db.child('medias').orderByKey();
@@ -83,7 +113,7 @@ class dbService {
     }
     final data = snapshot.value as Map<dynamic, dynamic>;
     return data.entries.map((e) {
-      return Media.fromKey(e.key);
+      return Media.fromKey(e.key, e.value);
     }).toList();
   }
 
@@ -93,16 +123,16 @@ class dbService {
         return [];
       }
       final data = event.snapshot.value as Map<dynamic, dynamic>;
-      medias = data.entries.map((e) => Media.fromKey(e.key)).toList();
+      medias = data.entries.map((e) => Media.fromKey(e.key, e.value)).toList();
       return medias;
     });
   }
 
-  Future<void> removeMedia(Media media) async {
-    db.child('medias/${media.key}').remove();
-  }
-
   Future<void> addMedia(Media media) async {
     db.child('medias').child(media.key).set(media.toString());
+  }
+
+  Future<void> removeMedia(Media media) async {
+    db.child('medias/${media.key}').remove();
   }
 }

@@ -19,10 +19,7 @@ class StudentListPage extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Colors.amber,
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => StudentEditPage(Student())),
-          );
+          Navigator.push(context, MaterialPageRoute(builder: (_) => StudentEditPage(Student())));
         },
         icon: const Icon(Icons.add),
         label: const Text("Add Student"),
@@ -53,22 +50,15 @@ class StudentListPage extends StatelessWidget {
                         return Container(
                           margin: const EdgeInsets.only(bottom: 14),
                           padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(22),
-                          ),
+                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(22)),
                           child: Row(
                             children: [
                               CircleAvatar(
                                 radius: 24,
                                 backgroundColor: Colors.blue.shade50,
                                 child: Text(
-                                  s.name.isEmpty ? "*" :
-                                  s.name.substring(0, 1),
-                                  style: const TextStyle(
-                                    color: Colors.teal,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  s.name.isEmpty ? "*" : s.name.substring(0, 1),
+                                  style: const TextStyle(color: Colors.teal, fontWeight: FontWeight.bold),
                                 ),
                               ),
 
@@ -78,20 +68,9 @@ class StudentListPage extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      s.name,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
+                                    Text(s.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
                                     const SizedBox(height: 4),
-                                    Text(
-                                      s.key,
-                                      style: TextStyle(
-                                        color: Colors.grey.shade600,
-                                      ),
-                                    ),
+                                    Text(s.code, style: TextStyle(color: Colors.grey.shade600)),
                                   ],
                                 ),
                               ),
@@ -99,12 +78,7 @@ class StudentListPage extends StatelessWidget {
                               IconButton(
                                 icon: const Icon(Icons.edit_outlined),
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => StudentEditPage(s),
-                                    ),
-                                  );
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) => StudentEditPage(s)));
                                 },
                               ),
                             ],
