@@ -1,24 +1,23 @@
 class Media {
   String key = "";
-  String hash = "";
 
   String studentId = "";
   String fileId = "";
 
-  Media();
+  Media({this.studentId = "", this.fileId = ""}) {
+    key = "$studentId++++++$fileId";
+  }
 
-  factory Media.fromMap(String key, Map<dynamic, dynamic> data) {
-    var h = data['hash'] ?? '';
-    var s = h.toString().split("#").first;
-    var f = h.toString().split("#").last;
+  factory Media.fromKey(String key) {
+    var s = key.toString().split("++++++").first;
+    var f = key.toString().split("++++++").last;
     return Media()
       ..key = key
-      ..hash = h
       ..studentId = s
       ..fileId = f;
   }
-
-  Map<String, dynamic> toMap() {
-    return {'hash': "$studentId#$fileId"};
+  @override
+  String toString() {
+    return "";
   }
 }

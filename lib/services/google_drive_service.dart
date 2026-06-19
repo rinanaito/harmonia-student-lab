@@ -36,9 +36,10 @@ class GoogleDriveService {
   }
 
   Future<List<drive.File>> getDriveFolders() async {
+    if (client == null) await getClient();
     final api = drive.DriveApi(client!);
 
-    final result = await api.files.list(q: "mimeType='application/vnd.google-apps.folder'", spaces: 'drive', includeTeamDriveItems: false);
+    final result = await api.files.list(q: "mimeType='application/vnd.google-apps.folder' and trashed = false and visibility = 'anyoneWithLink'", spaces: 'drive', includeItemsFromAllDrives: false);
 
     return result.files ?? [];
   }
@@ -47,8 +48,13 @@ class GoogleDriveService {
     // drive.DriveApi api,
     String folderId,
   ) async {
+    if (client == null) await getClient();
     final api = drive.DriveApi(client!);
-    final result = await api.files.list(q: "'$folderId' in parents and trashed = false", spaces: 'drive', $fields: 'files(id,name,mimeType,thumbnailLink)');
+    final result = await api.files.list(
+      q: "mimeType != 'application/vnd.google-apps.folder' and '$folderId' in parents and trashed = false and visibility = 'anyoneWithLink'",
+      spaces: 'drive',
+      $fields: 'files(id,name,mimeType,thumbnailLink)',
+    );
     return result.files ?? [];
   }
 }

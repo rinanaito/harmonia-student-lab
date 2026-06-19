@@ -6,15 +6,14 @@ import 'package:harmonia_flutter/main.dart';
 
 import '../../models/album.dart';
 import '../../models/student.dart';
-import 'add_gallery_page.dart';
-import 'album_list_edit.dart';
+import 'open_folder_page.dart';
 import '../student_edit_page.dart';
 
 class AlbumListPage extends StatelessWidget {
   AlbumListPage({super.key});
 
   addGallery(BuildContext context, Album album) {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => AddGalleryPage(album)));
+    Navigator.push(context, MaterialPageRoute(builder: (_) => OpenFolderPage(album)));
   }
 
   @override

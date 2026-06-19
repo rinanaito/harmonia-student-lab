@@ -78,7 +78,7 @@ class _AdminScreenState extends State<AdminScreen> {
                       const SizedBox(height: 34),
                       _tab(
                         r: true,
-                        label: "👨‍👩‍👧 Users",
+                        label: "👨‍👩‍👧 Students",
                         onTap: () {
                           Navigator.push(context, MaterialPageRoute(builder: (_) => StudentListPage()));
                         },

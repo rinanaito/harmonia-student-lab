@@ -6,6 +6,7 @@ import '../models/student.dart';
 class dbService {
   final DatabaseReference db = FirebaseDatabase.instance.ref();
   static List<Student> students = <Student>[];
+  static List<Media> medias = <Media>[];
 
   DatabaseReference dbStudent({String key = ""}) => db.child('students${key.isEmpty ? '' : '/$key'}');
   DatabaseReference dbAlbum({String key = ""}) => db.child('albums${key.isEmpty ? '' : '/$key'}');
@@ -30,9 +31,10 @@ class dbService {
         return [];
       }
       final data = event.snapshot.value as Map<dynamic, dynamic>;
-      return data.entries.map((e) {
+      students = data.entries.map((e) {
         return Student.fromMap(e.key, e.value);
       }).toList();
+      return students;
     });
   }
 
@@ -59,14 +61,18 @@ class dbService {
     });
   }
 
-  Future<void> updateAlbum(Album album) async {
+  Future<void> removeAlbum(Album album) async {
+    db.child('albums/${album.key}').remove();
+  }
+
+  Future<void> addAlbum(Album album) async {
     await db.child('albums').child(album.key).set(album.toMap());
   }
 
-  Future<List<Media>> dbMedia(bool byStudent, {String filter = "", int limit = 0}) async {
+  Future<List<Media>> dbMedia({bool byStudent = true, String filter = "", int limit = 0}) async {
     if (filter.isEmpty) return [];
-    var f = db.child('medias').orderByChild("hash");
-    f = byStudent ? f.startAt("$filter#") : f.endAt("#$filter");
+    var f = db.child('medias').orderByKey();
+    f = byStudent ? f.startAt("$filter++++++") : f.endAt("++++++$filter");
     if (limit > 0) {
       f = f.limitToFirst(limit);
     }
@@ -77,8 +83,19 @@ class dbService {
     }
     final data = snapshot.value as Map<dynamic, dynamic>;
     return data.entries.map((e) {
-      return Media.fromMap(e.key, e.value);
+      return Media.fromKey(e.key);
     }).toList();
+  }
+
+  Stream<List<Media>> getMedia() {
+    return db.child('medias').onValue.map((event) {
+      if (event.snapshot.value == null) {
+        return [];
+      }
+      final data = event.snapshot.value as Map<dynamic, dynamic>;
+      medias = data.entries.map((e) => Media.fromKey(e.key)).toList();
+      return medias;
+    });
   }
 
   Future<void> removeMedia(Media media) async {
@@ -86,6 +103,6 @@ class dbService {
   }
 
   Future<void> addMedia(Media media) async {
-    db.child('medias').push().set(media.toMap());
+    db.child('medias').child(media.key).set(media.toString());
   }
 }
