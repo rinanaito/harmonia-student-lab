@@ -133,6 +133,6 @@ class dbService {
   }
 
   Future<void> removeMedia(Media media) async {
-    db.child('medias/${media.key}').remove();
+    // db.child('medias/${media.key}').remove();
   }
 }
