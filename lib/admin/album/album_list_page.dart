@@ -6,29 +6,38 @@ import 'package:harmonia_flutter/main.dart';
 
 import '../../models/album.dart';
 import '../../models/student.dart';
+import 'add_gallery_page.dart';
 import 'album_list_edit.dart';
 import '../student_edit_page.dart';
 
 class AlbumListPage extends StatelessWidget {
   AlbumListPage({super.key});
 
+  addGallery(BuildContext context, Album album) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => AddGalleryPage(album)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Albums"), elevation: 0),
-      backgroundColor: const Color(0xFFF8F6EF),
-
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Colors.amber,
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => AlbumEditPage(Album())),
-          );
-        },
-        icon: const Icon(Icons.add),
-        label: const Text("Add Album"),
+      appBar: AppBar(
+        title: const Text("Albums"),
+        elevation: 0,
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueAccent,
+              foregroundColor: Colors.white, // text + icon color
+            ),
+            child: Row(children: [const Icon(Icons.add), const Text("Add")]),
+            onPressed: () {
+              addGallery(context, Album());
+            },
+          ),
+          SizedBox(width: 10),
+        ],
       ),
+      backgroundColor: const Color(0xFFF8F6EF),
 
       body: SafeArea(
         child: Padding(
@@ -53,46 +62,38 @@ class AlbumListPage extends StatelessWidget {
                       mainAxisSpacing: 10,
                       padding: EdgeInsets.all(10),
                       children: List.generate(albums.length, (index) {
-
                         final a = albums[index];
 
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 14),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(22),
-                          ),
-                          child: Row(
-                            children: [
-
-                              Expanded(
-                                child:
-                                Text(
-                                  a.name,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                        return GestureDetector(
+                          onTap: () {
+                            addGallery(context, a);
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 14),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(22)),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(a.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
                                 ),
-                              ),
 
-                              IconButton(
-                                icon: const Icon(Icons.edit_outlined),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => AlbumEditPage(a),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
+                                // IconButton(
+                                //   icon: const Icon(Icons.edit_outlined),
+                                //   onPressed: () {
+                                //     Navigator.push(
+                                //       context,
+                                //       MaterialPageRoute(
+                                //         builder: (_) => AlbumEditPage(a),
+                                //       ),
+                                //     );
+                                //   },
+                                // ),
+                              ],
+                            ),
                           ),
                         );
-                      },
-                      ),
+                      }),
                     );
                   },
                 ),

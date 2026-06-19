@@ -1,44 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:harmonia_flutter/admin.dart';
 import 'package:harmonia_flutter/admin/album/folder_selector.dart';
 import 'package:harmonia_flutter/main.dart';
 import 'package:harmonia_flutter/models/album.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
+import 'package:harmonia_flutter/services/dbService.dart';
+import 'package:harmonia_flutter/services/google_drive_service.dart';
 import 'package:http/http.dart' as http;
-
-final googleSignIn = GoogleSignIn(scopes: [drive.DriveApi.driveReadonlyScope]);
-
-Future<List<drive.File>> getDriveFolders() async {
-  final account = await googleSignIn.signIn();
-
-  if (account == null) {
-    return [];
-  }
-
-  final authHeaders = await account.authHeaders;
-
-  final client = GoogleAuthClient(authHeaders);
-
-  final api = drive.DriveApi(client);
-
-  final result = await api.files.list(q: "mimeType='application/vnd.google-apps.folder'", spaces: 'drive');
-
-  return result.files ?? [];
-}
-
-class GoogleAuthClient extends http.BaseClient {
-  final Map<String, String> headers;
-
-  GoogleAuthClient(this.headers);
-
-  final _client = http.Client();
-
-  @override
-  Future<http.StreamedResponse> send(http.BaseRequest request) {
-    request.headers.addAll(headers);
-    return _client.send(request);
-  }
-}
 
 class AlbumEditPage extends StatefulWidget {
   Album album;
@@ -61,30 +30,12 @@ class _AlbumEditPageState extends State<AlbumEditPage> {
     super.initState();
   }
 
-  Future<void> setupDrive() async {
-    final folders = await getDriveFolders();
-    widget.selectedFolder = await Navigator.push(context, MaterialPageRoute(builder: (_) => FolderSelector(folders, widget.album.key)));
-    if (widget.selectedFolder != null && nameController.text.isEmpty) {
-      nameController.text = widget.selectedFolder?.name ?? "";
-    }
-  }
-
-  Future<List<drive.File>> getFilesInFolder(
-    // drive.DriveApi api,
-    String folderId,
-  ) async {
-    if (await googleSignIn.isSignedIn()) {
-      final account = await googleSignIn.signIn();
-      final auth = await account?.authHeaders;
-
-      final client = GoogleAuthClient(auth!);
-
-      final api = drive.DriveApi(client);
-      final result = await api.files.list(q: "'$folderId' in parents and trashed = false", spaces: 'drive', $fields: 'files(id,name,mimeType,thumbnailLink)');
-      return result.files ?? [];
-    } else {
-      return [];
-    }
+  Future<void> selectFolder() async {
+    widget.selectedFolder = await Navigator.push(context, MaterialPageRoute(builder: (_) => FolderSelector(widget.album.key)));
+    nameController.text = widget.selectedFolder?.name ?? "";
+    // widget.album.name = widget.selectedFolder?.name ?? "";
+    // widget.album.key = widget.selectedFolder?.id ?? "";
+    // dbService().updateAlbum(widget.album);
   }
 
   @override
@@ -104,39 +55,45 @@ class _AlbumEditPageState extends State<AlbumEditPage> {
 
               child: Column(
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      setupDrive();
-                    },
-                    child: Text("Folder сонгох"),
-                  ),
-
-                  const SizedBox(height: 18),
-                  TextField(
-                    decoration: InputDecoration(labelText: "folder name", border: OutlineInputBorder()),
-                    controller: nameController,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          decoration: InputDecoration(labelText: "folder name", border: OutlineInputBorder()),
+                          controller: nameController,
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          selectFolder();
+                        },
+                        child: Text("Folder сонгох"),
+                      ),
+                    ],
                   ),
                   if (widget.selectedFolder != null)
-                    FutureBuilder(
-                      future: getFilesInFolder(widget.selectedFolder?.id ?? ""),
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) {
-                          return const Center(child: CircularProgressIndicator());
-                        }
-                        final files = snapshot.data!;
-                        return GridView.builder(
-                          padding: const EdgeInsets.all(8),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 8, mainAxisSpacing: 8),
-                          itemCount: files.length ?? 0,
-                          itemBuilder: (context, index) {
-                            final file = files[index];
-                            return ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: file.hasThumbnail ?? false ? Image.network(file.thumbnailLink ?? "", fit: BoxFit.cover) : null,
-                            );
-                          },
-                        );
-                      },
+                    Expanded(
+                      child: FutureBuilder(
+                        future: GoogleDriveService().getFilesInFolder(widget.selectedFolder?.id ?? ""),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                          final files = snapshot.data!;
+                          return GridView.builder(
+                            padding: const EdgeInsets.all(8),
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, crossAxisSpacing: 8, mainAxisSpacing: 8),
+                            itemCount: files.length ?? 0,
+                            itemBuilder: (context, index) {
+                              final file = files[index];
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: file.hasThumbnail ?? false ? Image.network(file.thumbnailLink ?? "", fit: BoxFit.cover) : null,
+                              );
+                            },
+                          );
+                        },
+                      ),
                     ),
                 ],
               ),
