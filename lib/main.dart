@@ -7,8 +7,10 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 
 import 'package:harmonia_flutter/home.dart';
+import 'package:harmonia_flutter/privacy_page.dart';
 import 'package:harmonia_flutter/services/db_service.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:harmonia_flutter/terms_page.dart';
 
 import 'admin.dart';
 import 'firebase_options.dart';
@@ -33,6 +35,14 @@ Future<void> main() async {
       page = AdminScreen();
       break;
 
+
+    case '/terms':
+      page = TermsPage();
+      break;
+    case '/privacy':
+      page = PrivacyPage();
+      break;
+
     default:
       page = HarmoniaScreen();
   }
@@ -41,7 +51,7 @@ Future<void> main() async {
 }
 
 class MyApp extends StatefulWidget {
-  late Widget page;
+  Widget page;
   MyApp(this.page, {super.key});
 
   @override

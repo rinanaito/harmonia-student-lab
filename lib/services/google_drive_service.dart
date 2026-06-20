@@ -17,6 +17,9 @@ class GoogleDriveService {
   Future<void> signIn(VoidCallback? callback) async {
     await checkLogin();
     if (logged) {
+      if (callback != null) {
+        callback();
+      }
       return;
     }
     account = await googleSignIn.signIn();

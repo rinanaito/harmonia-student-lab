@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:harmonia_flutter/admin/student_list_page.dart';
 import 'package:harmonia_flutter/parent/parent_album_page.dart';
 import 'package:harmonia_flutter/services/db_service.dart';
+import 'package:harmonia_flutter/services/google_drive_service.dart';
 
 class HarmoniaScreen extends StatefulWidget {
   const HarmoniaScreen({super.key});
@@ -175,6 +176,19 @@ class _HarmoniaScreenState extends State<HarmoniaScreen> {
               ),
             ),
             SizedBox(height: 50),
+            TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/terms');
+              },
+              child: const Text('Terms of Service'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/privacy');
+              },
+              child: const Text('Privacy Policy'),
+            ),
+
           ],
         ),
       ),
