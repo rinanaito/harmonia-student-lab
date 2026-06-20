@@ -9,7 +9,10 @@ import 'package:harmonia_flutter/services/db_service.dart';
 import 'package:harmonia_flutter/services/google_drive_service.dart';
 import 'package:web/web.dart' as web;
 
+import 'package:flutter_html/flutter_html.dart';
+
 import '../models/student.dart';
+import 'iframe_widget.dart';
 
 class ParentFolderPage extends StatelessWidget {
   late Student student;
@@ -40,6 +43,8 @@ class ParentFolderPage extends StatelessWidget {
                 var files = asyncSnapshot.data ?? [];
 
                 var width = MediaQuery.of(context).size.width;
+                var grid = width > 600 ? (width / 400).toInt() : 2;
+                var cellW = ((width - 80) / grid).toInt();
 
                 return Expanded(
                   child: GridView.builder(
@@ -73,12 +78,21 @@ class ParentFolderPage extends StatelessWidget {
                                     child: Stack(
                                       children: [
                                         Positioned.fill(
-                                          child: CachedNetworkImage(
-                                            imageUrl: file.thumbnail.isNotEmpty ? file.thumbnail.replaceAll(RegExp(r'=s\d+$'), '=s1200') : "https://drive.google.com/thumbnail?id=${media.fileId}&sz=w200",
-                                            placeholder: (context, url) => Center(child: CircularProgressIndicator()),
-                                            fit: BoxFit.contain,
-                                            errorWidget: (context, url, error) => Icon(Icons.error),
+                                          child: Html(
+                                            data:
+                                                '''
+                                                <img  style="display: block; margin: auto"
+                                              src="https://lh3.googleusercontent.com/d/${media.fileId}=w$cellW"
+                                              height="${cellW / 1.2 - 60}"
+                                            />''',
                                           ),
+                                          // child: IframeView(url: "https://lh3.googleusercontent.com/d/1cb07F-WkwClDq-7z4tCrtRyG0RMUo2FB=w200"),
+                                          // child: CachedNetworkImage(
+                                          //   imageUrl: file.thumbnail.isNotEmpty ? file.thumbnail.replaceAll(RegExp(r'=s\d+$'), '=s1200') : "https://drive.google.com/thumbnail?id=${media.fileId}&sz=w200",
+                                          //   placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                                          //   fit: BoxFit.contain,
+                                          //   errorWidget: (context, url, error) => Icon(Icons.error),
+                                          // ),
                                         ),
                                         Positioned(
                                           left: 0,
