@@ -35,81 +35,87 @@ class _AdminScreenState extends State<AdminScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: RadialGradient(center: Alignment(0.2, -0.1), radius: 1.2, colors: [Color(0xFF153D7C), Color(0xFF04193F)]),
-        ),
-        child: Center(
-          child: islogged
-              ? Container(
-                  width: 600,
-                  padding: const EdgeInsets.all(36),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8F8F8),
-                    borderRadius: BorderRadius.circular(28),
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(.18), blurRadius: 30, offset: const Offset(0, 18))],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Logo
-                      Container(
-                        width: 92,
-                        height: 92,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF07113A),
-                          borderRadius: BorderRadius.circular(4),
-                          image: const DecorationImage(image: AssetImage("assets/logo.png"), fit: BoxFit.cover),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (e, r){
+        return;
+      },
+      child: Scaffold(
+        body: Container(
+          decoration: const BoxDecoration(
+            gradient: RadialGradient(center: Alignment(0.2, -0.1), radius: 1.2, colors: [Color(0xFF153D7C), Color(0xFF04193F)]),
+          ),
+          child: Center(
+            child: islogged
+                ? Container(
+                    width: 600,
+                    padding: const EdgeInsets.all(36),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8F8F8),
+                      borderRadius: BorderRadius.circular(28),
+                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(.18), blurRadius: 30, offset: const Offset(0, 18))],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Logo
+                        Container(
+                          width: 92,
+                          height: 92,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF07113A),
+                            borderRadius: BorderRadius.circular(4),
+                            image: const DecorationImage(image: AssetImage("assets/logo.png"), fit: BoxFit.cover),
+                          ),
                         ),
-                      ),
 
-                      const SizedBox(height: 28),
+                        const SizedBox(height: 28),
 
-                      const Text(
-                        "Harmonia Language Lab",
-                        style: TextStyle(fontSize: 34, fontWeight: FontWeight.w700, color: Color(0xFF0F1733)),
-                      ),
+                        const Text(
+                          "Harmonia Language Lab",
+                          style: TextStyle(fontSize: 34, fontWeight: FontWeight.w700, color: Color(0xFF0F1733)),
+                        ),
 
-                      const SizedBox(height: 10),
+                        const SizedBox(height: 10),
 
-                      const Text("Student moments, shared with care", style: TextStyle(fontSize: 20, color: Color(0xFF7A7A7A))),
+                        const Text("Student moments, shared with care", style: TextStyle(fontSize: 20, color: Color(0xFF7A7A7A))),
 
-                      const SizedBox(height: 34),
-                      _tab(
-                        r: true,
-                        label: "👨‍👩‍👧 Students",
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => StudentListPage()));
+                        const SizedBox(height: 34),
+                        _tab(
+                          r: true,
+                          label: "👨‍👩‍👧 Students",
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => StudentListPage()));
+                          },
+                        ),
+                        _tab(
+                          r: false,
+                          label: "🔐 Albums",
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => AlbumListPage()));
+                          },
+                        ),
+
+                        const SizedBox(height: 32),
+
+                        const SizedBox(height: 34),
+                      ],
+                    ),
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          letSomeonSignin();
                         },
+                        child: Text("Login"),
                       ),
-                      _tab(
-                        r: false,
-                        label: "🔐 Albums",
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => AlbumListPage()));
-                        },
-                      ),
-
-                      const SizedBox(height: 32),
-
-                      const SizedBox(height: 34),
                     ],
                   ),
-                )
-              : Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () {
-                        letSomeonSignin();
-                      },
-                      child: Text("Login"),
-                    ),
-                  ],
-                ),
+          ),
         ),
       ),
     );
