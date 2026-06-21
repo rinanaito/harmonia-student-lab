@@ -12,7 +12,6 @@ import 'package:web/web.dart' as web;
 import 'package:flutter_html/flutter_html.dart';
 
 import '../models/student.dart';
-import 'iframe_widget.dart';
 
 class ParentFolderPage extends StatelessWidget {
   late Student student;
@@ -81,8 +80,8 @@ class ParentFolderPage extends StatelessWidget {
                                           child: Html(
                                             data:
                                                 '''
-                                                <img  style="display: block; margin: auto"
-                                              src="https://lh3.googleusercontent.com/d/${media.fileId}=w$cellW"
+                                                <img  style="display: block; margin: auto" 
+                                              src="https://lh3.googleusercontent.com/d/${media.fileId}=w$cellW" 
                                               height="${cellW / 1.2 - 60}"
                                             />''',
                                           ),

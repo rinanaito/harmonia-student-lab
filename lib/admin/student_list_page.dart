@@ -93,7 +93,7 @@ class StudentListPage extends StatelessWidget {
                               IconButton(
                                 icon: const Icon(Icons.collections),
                                 onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (_) => ParentAlbumPage(student: s)));
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) => ParentAlbumPage(student: s, isAdmin: true)));
                                 },
                               ),
                             ],

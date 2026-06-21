@@ -7,12 +7,14 @@ import 'package:harmonia_flutter/parent/parent_folder_page.dart';
 import 'package:harmonia_flutter/services/db_service.dart';
 
 import '../../models/album.dart';
+import '../admin/student_album_adder.dart';
 import '../models/media.dart';
 import '../models/student.dart';
 
 class ParentAlbumPage extends StatelessWidget {
   late Student student;
-  ParentAlbumPage({required this.student, super.key});
+  late bool isAdmin;
+  ParentAlbumPage({required this.student, this.isAdmin = false, super.key});
 
   void openFolder(BuildContext context, Album album, List<Media> medias) {
     Navigator.push(context, MaterialPageRoute(builder: (_) => ParentFolderPage(student, album, medias)));
@@ -21,7 +23,21 @@ class ParentAlbumPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(student.name), elevation: 0),
+      appBar: AppBar(
+        title: Text(student.name),
+        elevation: 0,
+        actions: [
+          if (isAdmin)
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.blue),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => StudentAlbumAdder(Album()..studentId = student.key)));
+              },
+              child: Text("Album-Student"),
+            ),
+          SizedBox(width: 10),
+        ],
+      ),
       backgroundColor: const Color(0xFFF8F6EF),
 
       body: SafeArea(
