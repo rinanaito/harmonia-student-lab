@@ -83,7 +83,6 @@ class GoogleAuthClient extends http.BaseClient {
 
 extension DriveFileExtension on drive.File {
   String? get extension {
-    print(mimeType);
     const map = {
       'image/jpeg': 'jpg',
       'image/heif': 'heic',

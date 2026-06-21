@@ -50,6 +50,7 @@ class _MediaTagPageState extends State<MediaTagPage> {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: const Color(0xFFF8F6EF),
       floatingActionButton: FloatingActionButton.large(
         onPressed: () {
@@ -60,121 +61,123 @@ class _MediaTagPageState extends State<MediaTagPage> {
         child: Icon(Icons.check),
       ),
       appBar: AppBar(
-        title: GestureDetector(onTap: () => openNewTab("https://drive.google.com/thumbnail?id=${selectedFile?.id ?? ""}&sz=w1000"), child: Text(selectedFile?.name ?? "")),
+        title: GestureDetector(onTap: () => openNewTab("https://drive.google.com/file/d/${selectedFile?.id ?? ""}/view"), child: Text(selectedFile?.name ?? "")),
         elevation: 0,
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          border: BoxBorder.all(color: Colors.black12),
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-        ),
-        child: Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            Center(
-              child: Container(
-                height: height > width ? width : min(height, width) * 0.6,
-                width: height > width ? width : min(height, width) * 0.6,
-                decoration: BoxDecoration(
-                  border: BoxBorder.all(color: Colors.black12),
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: CachedNetworkImage(
-                        imageUrl: selectedFile?.thumbnailLink?.replaceAll(RegExp(r'=s\d+$'), '=s1200') ?? "https://drive.google.com/thumbnail?id=${selectedFile?.id ?? ""}&sz=w1200",
-                        fit: BoxFit.contain,
-                        placeholder: (context, _) => const CircularProgressIndicator(strokeWidth: 2),
-                        errorWidget: (context, _, __) => Center(
-                          child: GestureDetector(
-                            onTap: () => openNewTab("https://drive.google.com/thumbnail?id=${selectedFile?.id ?? ""}&sz=w1200"),
-                            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.broken_image), SizedBox(height: 5), Text("Couldn't load,\nview to CLICK")]),
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (widget.files.length > 1)
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        child: Center(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5)),
-                              color: Colors.blue,
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: Text(selectedFile?.extension ?? "", maxLines: 1, style: TextStyle(color: Colors.white)),
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (widget.files.length > 1)
+      body: SingleChildScrollView(
+        child: Container(
+          decoration: BoxDecoration(
+            border: BoxBorder.all(color: Colors.black12),
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+          child: Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Center(
+                child: Container(
+                  height: height > width ? width : min(height, width) * 0.6,
+                  width: height > width ? width : min(height, width) * 0.6,
+                  decoration: BoxDecoration(
+                    border: BoxBorder.all(color: Colors.black12),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                  child: Stack(
+                    children: [
                       Positioned.fill(
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: GestureDetector(
-                                onTap: () => indexChange(increase: false),
-                                child: Container(
-                                  decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.black45, Colors.black.withAlpha(0)])),
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(5.0),
-                                      child: Icon(Icons.keyboard_arrow_left, color: Colors.white, size: 35),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                        child: CachedNetworkImage(
+                          imageUrl: selectedFile?.thumbnailLink?.replaceAll(RegExp(r'=s\d+$'), '=s1200') ?? "https://drive.google.com/thumbnail?id=${selectedFile?.id ?? ""}&sz=w1200",
+                          fit: BoxFit.contain,
+                          placeholder: (context, _) => const CircularProgressIndicator(strokeWidth: 2),
+                          errorWidget: (context, _, __) => Center(
+                            child: GestureDetector(
+                              onTap: () => openNewTab("https://drive.google.com/thumbnail?id=${selectedFile?.id ?? ""}&sz=w1200"),
+                              child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.broken_image), SizedBox(height: 5), Text("Couldn't load,\nview to CLICK")]),
                             ),
-                            Expanded(flex: 3, child: Container()),
-                            Expanded(
-                              flex: 1,
-                              child: GestureDetector(
-                                onTap: () => indexChange(increase: true),
-                                child: Container(
-                                  decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.black.withAlpha(0), Colors.black45])),
-                                  child: Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(5.0),
-                                      child: Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 35),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
-                  ],
+                      if (widget.files.length > 1)
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          child: Center(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(5), bottomRight: Radius.circular(5)),
+                                color: Colors.blue,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Text(selectedFile?.extension ?? "", maxLines: 1, style: TextStyle(color: Colors.white)),
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (widget.files.length > 1)
+                        Positioned.fill(
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: GestureDetector(
+                                  onTap: () => indexChange(increase: false),
+                                  child: Container(
+                                    decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.black45, Colors.black.withAlpha(0)])),
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: Icon(Icons.keyboard_arrow_left, color: Colors.white, size: 35),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(flex: 3, child: Container()),
+                              Expanded(
+                                flex: 1,
+                                child: GestureDetector(
+                                  onTap: () => indexChange(increase: true),
+                                  child: Container(
+                                    decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.black.withAlpha(0), Colors.black45])),
+                                    child: Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: Icon(Icons.keyboard_arrow_right, color: Colors.white, size: 35),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            if (widget.album.key.isNotEmpty)
-              SizedBox(
-                width: height > width ? width : min(height, width) * 0.6,
-                child: StreamBuilder(
-                  stream: dbService().getStudents(),
-                  builder: (context, snapshot) {
-                    final tags = dbService.medias.where((m) => m.fileId == selectedFile?.id).toList(growable: true);
-                    return MultiTagSelector(
-                      initialSelected: tags.map((e) => e.studentId).toList(),
-                      onAdd: (studentId) => addStudent(studentId, selectedFile?.id ?? ""),
-                      onRemoved: (studentId) => removeStudent(studentId, selectedFile?.id ?? ""),
-                      tags: dbService.students,
-                    );
-                  },
+              if (widget.album.key.isNotEmpty)
+                SizedBox(
+                  width: height > width ? width : min(height, width) * 0.6,
+                  child: StreamBuilder(
+                    stream: dbService().getStudents(),
+                    builder: (context, snapshot) {
+                      final tags = dbService.medias.where((m) => m.fileId == selectedFile?.id).toList(growable: true);
+                      return MultiTagSelector(
+                        initialSelected: tags.map((e) => e.studentId).toList(),
+                        onAdd: (studentId) => addStudent(studentId, selectedFile?.id ?? ""),
+                        onRemoved: (studentId) => removeStudent(studentId, selectedFile?.id ?? ""),
+                        tags: dbService.students,
+                      );
+                    },
+                  ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

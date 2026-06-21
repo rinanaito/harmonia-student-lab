@@ -28,7 +28,7 @@ Future<void> main() async {
 
   switch (uri.path) {
     case '/':
-      page = HarmoniaScreen();
+      page = AdminScreen();
       break;
 
     case '/admin':

@@ -97,7 +97,19 @@ class _AdminScreenState extends State<AdminScreen> {
                     ],
                   ),
                 )
-              : CircularProgressIndicator(),
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () {
+                        letSomeonSignin();
+                      },
+                      child: Text("Login"),
+                    ),
+                  ],
+                ),
         ),
       ),
     );

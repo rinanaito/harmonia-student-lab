@@ -150,7 +150,12 @@ class _AlbumListPageState extends State<AlbumListPage> {
                               children: [
                                 Icon(Icons.folder_rounded, size: 30),
                                 SizedBox(height: 10),
-                                Text(a.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                                Text(
+                                  a.name,
+                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ],
                             ),
                           ),
