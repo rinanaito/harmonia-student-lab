@@ -37,7 +37,7 @@ class _StudentAlbumAdderState extends State<StudentAlbumAdder> {
       setState(() {
         selectedFileIds = [];
         selectedFolder = folder;
-        widget.album.name = "${selectedStudent == null ? "" : "${selectedStudent?.code}-"}${selectedFolder?.name ?? ""}";
+        widget.album.name = selectedFolder?.name ?? "";
         widget.album.studentId = selectedStudent?.key ?? "";
         widget.album.key = selectedFolder?.id ?? "";
       });
@@ -111,7 +111,7 @@ class _StudentAlbumAdderState extends State<StudentAlbumAdder> {
                     widget.album.studentId = selectedStudent?.key ?? "";
                     if (selectedFolder != null) {
                       setState(() {
-                        widget.album.name = "${selectedStudent?.code ?? ""}-${selectedFolder?.name ?? ""}";
+                        widget.album.name = selectedFolder?.name ?? "";
                       });
                     }
                   },
@@ -257,24 +257,26 @@ class _StudentAlbumAdderState extends State<StudentAlbumAdder> {
 
   Future<void> save() async {
     try {
-      if (files.isNotEmpty && selectedStudent != null) {
+      if (selectedFileIds.isNotEmpty && files.isNotEmpty && selectedStudent != null) {
         for (var file in files) {
-          dbService().addFile(
-            DFile()
-              ..key = file.id ?? ""
-              ..name = file.name ?? ""
-              ..thumbnail = file.thumbnailLink ?? ""
-              ..type = file.extension ?? "",
-          );
+          if (selectedFileIds.contains(file.id ?? "")) {
+            dbService().addFile(
+              DFile()
+                ..key = file.id ?? ""
+                ..name = file.name ?? ""
+                ..thumbnail = file.thumbnailLink ?? ""
+                ..type = file.extension ?? "",
+            );
+          }
           var m = Media(studentId: selectedStudent!.key, fileId: file.id ?? "", folderId: widget.album.key);
           dbService().addMedia(m);
           dbService().addAlbum(widget.album);
         }
+        selectAll();
       }
 
       if (!context.mounted) return;
-
-      Navigator.pop(context);
+      // Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(backgroundColor: Colors.green, content: Text("Updated")));
     } catch (e) {
       if (!context.mounted) return;
