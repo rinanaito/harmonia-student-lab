@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in_web/web_only.dart' as web;
 import 'package:harmonia_flutter/admin/student_list_page.dart';
+import 'package:harmonia_flutter/services/google_button.dart';
 import 'package:harmonia_flutter/services/google_drive_service.dart';
 import 'package:provider/provider.dart';
 
@@ -74,7 +74,7 @@ class AdminScreen extends StatelessWidget {
                     ],
                   ),
                 )
-              : Column(mainAxisAlignment: MainAxisAlignment.center, children: [SizedBox(height: 10), if (kIsWeb) web.renderButton()]),
+              : Column(mainAxisAlignment: MainAxisAlignment.center, children: [SizedBox(height: 10), GoogleSignInButton()]),
         ),
       ),
     );

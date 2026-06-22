@@ -7,32 +7,33 @@ import 'package:http/http.dart' as http;
 
 class GoogleDriveService extends ChangeNotifier {
   static const scopes = [drive.DriveApi.driveReadonlyScope];
-  static final GoogleSignIn _googleSignIn = GoogleSignIn(
-    // Optional clientId
-    // clientId: 'your-client_id.apps.googleusercontent.com',
-    scopes: scopes,
-  );
+  static final googleSignIn = GoogleSignIn(scopes: const [drive.DriveApi.driveReadonlyScope]);
 
   bool logged = false;
   static GoogleSignInAccount? account;
   GoogleAuthClient? client;
 
-  GoogleDriveService() {
-    initialize();
+  Future<void> checkLogin() async {
+    logged = await googleSignIn.isSignedIn();
   }
 
-  Future<void> initialize() async {
-    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) async {
-      GoogleDriveService.account = account;
-      logged = account != null;
-      if (kIsWeb && account != null) {
-        logged = await _googleSignIn.canAccessScopes(scopes);
-        if (!logged) {
-          logged = await _googleSignIn.requestScopes(scopes);
-        }
+  Future<void> signIn(VoidCallback? callback) async {
+    await checkLogin();
+    if (logged) {
+      if (callback != null) {
+        callback();
       }
-      notifyListeners();
-    });
+      return;
+    }
+    account = await googleSignIn.signIn();
+    if (account != null) {
+      getClient();
+    }
+    logged = account != null;
+    if (callback != null) {
+      callback();
+    }
+    notifyListeners();
   }
 
   Future<GoogleAuthClient?> getClient() async {
