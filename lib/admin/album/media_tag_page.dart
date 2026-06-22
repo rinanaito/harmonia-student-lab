@@ -66,6 +66,7 @@ class _MediaTagPageState extends State<MediaTagPage> {
       ),
       body: SingleChildScrollView(
         child: Container(
+          padding: EdgeInsets.only(bottom: 500),
           decoration: BoxDecoration(
             border: BoxBorder.all(color: Colors.black12),
             borderRadius: BorderRadius.all(Radius.circular(10)),
