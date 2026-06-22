@@ -11,6 +11,7 @@ class AuthService extends ChangeNotifier {
   GoogleSignInAccount? currentUser;
   String? errorMessage;
   bool initialized = false;
+  var token = "";
 
   AuthService() {
     _init();
@@ -43,6 +44,7 @@ class AuthService extends ChangeNotifier {
       errorMessage = null;
     } else if (event is GoogleSignInAuthenticationEventSignOut) {
       currentUser = null;
+      token = "";
     }
     notifyListeners();
   }
@@ -51,6 +53,8 @@ class AuthService extends ChangeNotifier {
     if (error is GoogleSignInException && error.code == GoogleSignInExceptionCode.canceled) {
       return; // user dismissed — not an error
     }
+
+    token = "";
     errorMessage = error.toString();
     notifyListeners();
   }
@@ -70,6 +74,7 @@ class AuthService extends ChangeNotifier {
   Future<void> signOut() async {
     await _signIn.signOut();
     currentUser = null;
+    token = "";
     notifyListeners();
   }
 
@@ -79,13 +84,14 @@ class AuthService extends ChangeNotifier {
   Future<String?> getAccessToken() async {
     final user = currentUser;
     if (user == null) return null;
+    if (token.isEmpty) {
+      // Silent first — no popup if already authorized
+      GoogleSignInClientAuthorization? auth = await user.authorizationClient.authorizationForScopes(scopes);
 
-    // Silent first — no popup if already authorized
-    GoogleSignInClientAuthorization? auth = await user.authorizationClient.authorizationForScopes(scopes);
-
-    // Only show the consent popup if silent failed
-    auth ??= await user.authorizationClient.authorizeScopes(scopes);
-
-    return auth.accessToken;
+      // Only show the consent popup if silent failed
+      auth ??= await user.authorizationClient.authorizeScopes(scopes);
+      token = auth.accessToken;
+    }
+    return token;
   }
 }
