@@ -6,7 +6,9 @@ import 'package:harmonia_flutter/models/album.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:harmonia_flutter/services/db_service.dart';
 import 'package:harmonia_flutter/services/google_drive_service.dart';
+import 'package:provider/provider.dart';
 
+import '../../services/auth_service.dart';
 import '../../services/db_service.dart';
 import 'media_tag_page.dart';
 
@@ -21,6 +23,8 @@ class OpenFolderPage extends StatefulWidget {
 }
 
 class _OpenFolderPageState extends State<OpenFolderPage> {
+  String token = "";
+
   @override
   void initState() {
     dbService().studentList4Info;
@@ -28,6 +32,10 @@ class _OpenFolderPageState extends State<OpenFolderPage> {
       Future.delayed(const Duration(milliseconds: 150), selectFolder);
     }
     super.initState();
+  }
+
+  Future<String?> getToken() {
+    return context.read<AuthService>().getAccessToken();
   }
 
   Future<void> selectFolder() async {
@@ -91,98 +99,109 @@ class _OpenFolderPageState extends State<OpenFolderPage> {
                       return const SizedBox(width: 20);
                     }
                     final medias = snapshot.data!;
-                    return FutureBuilder<List<drive.File>>(
-                      future: GoogleDriveService().getFilesInFolder(widget.album.key),
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) {
+                    final token = context.read<AuthService>().getAccessToken();
+                    return FutureBuilder(
+                      future: getToken(),
+                      builder: (context, asyncSnapshot) {
+                        if (!asyncSnapshot.hasData) {
                           return const Center(child: CircularProgressIndicator());
                         }
-                        final files = snapshot.data!;
-                        var width = MediaQuery.of(context).size.width;
-                        return GridView.builder(
-                          padding: const EdgeInsets.all(8),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: width > 600 ? (width / 400).toInt() : 2,
-                            crossAxisSpacing: 15,
-                            mainAxisSpacing: 15,
-                            childAspectRatio: 1.2, // width / height
-                          ),
-                          itemCount: files.length ?? 0,
-                          itemBuilder: (context, index) {
-                            final file = files[index];
-                            return GestureDetector(
-                              onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (_) => MediaTagPage(files, widget.album, showedIndex: index)));
-                              },
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.fromLTRB(0, 20, 20, 0),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          border: BoxBorder.all(color: Colors.black12),
-                                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                                        ),
-                                        child: Stack(
-                                          children: [
-                                            Positioned.fill(
-                                              child: CachedNetworkImage(
-                                                imageUrl: file.thumbnailLink ?? "",
-                                                placeholder: (context, url) => Center(child: CircularProgressIndicator()),
-                                                fit: BoxFit.contain,
-                                                errorWidget: (context, url, error) => Icon(Icons.error),
-                                              ),
+                        final token = asyncSnapshot.data ?? "";
+
+                        return FutureBuilder<List<drive.File>>(
+                          future: GoogleDriveService().getFilesInFolder(token, widget.album.key),
+                          builder: (context, fileSnapshot) {
+                            if (!fileSnapshot.hasData) {
+                              return const Center(child: CircularProgressIndicator());
+                            }
+                            final files = fileSnapshot.data!;
+                            var width = MediaQuery.of(context).size.width;
+                            return GridView.builder(
+                              padding: const EdgeInsets.all(8),
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: width > 600 ? (width / 400).toInt() : 2,
+                                crossAxisSpacing: 15,
+                                mainAxisSpacing: 15,
+                                childAspectRatio: 1.2, // width / height
+                              ),
+                              itemCount: files.length ?? 0,
+                              itemBuilder: (context, index) {
+                                final file = files[index];
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (_) => MediaTagPage(files, widget.album, showedIndex: index)));
+                                  },
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.fromLTRB(0, 20, 20, 0),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              border: BoxBorder.all(color: Colors.black12),
+                                              borderRadius: BorderRadius.all(Radius.circular(10)),
                                             ),
-                                            Positioned(
-                                              left: 0,
-                                              bottom: 0,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.only(topRight: Radius.circular(5)),
-                                                  color: Colors.blue,
+                                            child: Stack(
+                                              children: [
+                                                Positioned.fill(
+                                                  child: CachedNetworkImage(
+                                                    imageUrl: file.thumbnailLink ?? "",
+                                                    placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                                                    fit: BoxFit.contain,
+                                                    errorWidget: (context, url, error) => Icon(Icons.error),
+                                                  ),
                                                 ),
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(4.0),
-                                                  child: Text(file.extension ?? "", maxLines: 1, style: TextStyle(color: Colors.white)),
+                                                Positioned(
+                                                  left: 0,
+                                                  bottom: 0,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius.only(topRight: Radius.circular(5)),
+                                                      color: Colors.blue,
+                                                    ),
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.all(4.0),
+                                                      child: Text(file.extension ?? "", maxLines: 1, style: TextStyle(color: Colors.white)),
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
+                                                Positioned(
+                                                  right: 10,
+                                                  top: 10,
+                                                  child: Wrap(
+                                                    spacing: 5,
+                                                    runSpacing: 5,
+                                                    direction: Axis.vertical,
+                                                    alignment: WrapAlignment.center, // main axis alignment
+                                                    runAlignment: WrapAlignment.center, // cross axis (rows) alignment
+                                                    crossAxisAlignment: WrapCrossAlignment.end,
+                                                    verticalDirection: VerticalDirection.down,
+                                                    children: [
+                                                      for (var s in dbService.students)
+                                                        if (medias.any((element) => element.studentId == s.key && element.fileId == file.id))
+                                                          CircleAvatar(
+                                                            radius: 10,
+                                                            backgroundColor: Colors.blue.shade50,
+                                                            child: Text(
+                                                              s.name.isEmpty ? "*" : s.name.substring(0, 1),
+                                                              style: const TextStyle(color: Colors.teal, fontWeight: FontWeight.normal),
+                                                            ),
+                                                          ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                            Positioned(
-                                              right: 10,
-                                              top: 10,
-                                              child: Wrap(
-                                                spacing: 5,
-                                                runSpacing: 5,
-                                                direction: Axis.vertical,
-                                                alignment: WrapAlignment.center, // main axis alignment
-                                                runAlignment: WrapAlignment.center, // cross axis (rows) alignment
-                                                crossAxisAlignment: WrapCrossAlignment.end,
-                                                verticalDirection: VerticalDirection.down,
-                                                children: [
-                                                  for (var s in dbService.students)
-                                                    if (medias.any((element) => element.studentId == s.key && element.fileId == file.id))
-                                                      CircleAvatar(
-                                                        radius: 10,
-                                                        backgroundColor: Colors.blue.shade50,
-                                                        child: Text(
-                                                          s.name.isEmpty ? "*" : s.name.substring(0, 1),
-                                                          style: const TextStyle(color: Colors.teal, fontWeight: FontWeight.normal),
-                                                        ),
-                                                      ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
+                                          ),
                                         ),
                                       ),
-                                    ),
+                                      SizedBox(height: 10),
+                                      Center(child: Text(file.name ?? "", maxLines: 1, overflow: TextOverflow.ellipsis)),
+                                    ],
                                   ),
-                                  SizedBox(height: 10),
-                                  Center(child: Text(file.name ?? "", maxLines: 1, overflow: TextOverflow.ellipsis)),
-                                ],
-                              ),
+                                );
+                              },
                             );
                           },
                         );

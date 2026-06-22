@@ -8,9 +8,11 @@ import 'dart:io';
 
 import 'package:harmonia_flutter/home.dart';
 import 'package:harmonia_flutter/privacy_page.dart';
+import 'package:harmonia_flutter/services/auth_service.dart';
 import 'package:harmonia_flutter/services/db_service.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:harmonia_flutter/terms_page.dart';
+import 'package:provider/provider.dart';
 
 import 'admin.dart';
 import 'firebase_options.dart';
@@ -35,7 +37,6 @@ Future<void> main() async {
       page = AdminScreen();
       break;
 
-
     case '/terms':
       page = TermsPage();
       break;
@@ -47,7 +48,7 @@ Future<void> main() async {
       page = HarmoniaScreen();
   }
 
-  runApp(MyApp(page));
+  runApp(ChangeNotifierProvider(create: (_) => AuthService(), child: MyApp(page)));
 }
 
 class MyApp extends StatefulWidget {
