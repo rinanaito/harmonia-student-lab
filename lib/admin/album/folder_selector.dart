@@ -14,7 +14,7 @@ class FolderSelector extends StatelessWidget {
   FolderSelector(this.selected, {super.key});
 
   Future<String?> getToken(BuildContext context) {
-    return context.read<AuthService>().getAccessToken();
+    return context.read<AuthService>().refreshAccessToken();
   }
 
   @override

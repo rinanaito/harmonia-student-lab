@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:google_sign_in_web/google_sign_in_web.dart' as web;
 import 'package:googleapis/drive/v3.dart' as drive;
 
 class AuthService extends ChangeNotifier {
@@ -11,51 +12,51 @@ class AuthService extends ChangeNotifier {
   GoogleSignInAccount? currentUser;
   String? errorMessage;
   bool initialized = false;
-  var token = "";
+  String? accessToken = null;
 
   AuthService() {
     _init();
   }
 
   Future<void> _init() async {
-    try {
-      await _signIn.initialize(
-        // On web, clientId is read from the <meta> tag, but you can also
-        // pass it explicitly here as a fallback:
-        // clientId: 'YOUR_CLIENT_ID.apps.googleusercontent.com',
-      );
+    await _signIn.initialize();
 
-      _signIn.authenticationEvents.listen(_onSignIn).onError(_onSignInError);
+    _signIn.authenticationEvents.listen(_onAuthEvent, onError: _onAuthError);
 
-      // Attempt silent restore — on web this may show a floating card
-      _signIn.attemptLightweightAuthentication();
+    // Attempt silent restore on page load
+    _signIn.attemptLightweightAuthentication();
 
-      initialized = true;
-      notifyListeners();
-    } catch (e) {
-      errorMessage = e.toString();
-      notifyListeners();
-    }
-  }
-
-  void _onSignIn(GoogleSignInAuthenticationEvent event) {
-    if (event is GoogleSignInAuthenticationEventSignIn) {
-      currentUser = event.user;
-      errorMessage = null;
-    } else if (event is GoogleSignInAuthenticationEventSignOut) {
-      currentUser = null;
-      token = "";
-    }
+    initialized = true;
     notifyListeners();
   }
 
-  void _onSignInError(Object error) {
-    if (error is GoogleSignInException && error.code == GoogleSignInExceptionCode.canceled) {
-      return; // user dismissed — not an error
+  Future<void> _onAuthEvent(GoogleSignInAuthenticationEvent event) async {
+    if (event is GoogleSignInAuthenticationEventSignIn) {
+      currentUser = event.user;
+      errorMessage = null;
+
+      // Immediately request Drive scope right after sign-in
+      // Silent first — no popup if already granted before
+      GoogleSignInClientAuthorization? auth = await currentUser!.authorizationClient.authorizationForScopes(scopes);
+
+      // If not yet authorized, show the consent popup
+      // NOTE: must be called from a user-gesture context.
+      // On first sign-in this fires immediately after the GIS button tap,
+      // so it's still within the gesture chain — popup will not be blocked.
+      auth ??= await currentUser!.authorizationClient.authorizeScopes(scopes);
+
+      accessToken = auth.accessToken;
+    } else if (event is GoogleSignInAuthenticationEventSignOut) {
+      currentUser = null;
+      accessToken = null;
     }
 
-    token = "";
-    errorMessage = error.toString();
+    notifyListeners();
+  }
+
+  void _onAuthError(Object err) {
+    if (err is GoogleSignInException && err.code == GoogleSignInExceptionCode.canceled) return;
+    errorMessage = err.toString();
     notifyListeners();
   }
 
@@ -74,24 +75,24 @@ class AuthService extends ChangeNotifier {
   Future<void> signOut() async {
     await _signIn.signOut();
     currentUser = null;
-    token = "";
+    accessToken = null;
     notifyListeners();
   }
 
-  /// Returns a valid access token for Drive scopes, requesting auth if needed.
-  /// Must be called from a user gesture on platforms where
-  /// authorizationRequiresUserInteraction() == true (which includes web).
-  Future<String?> getAccessToken() async {
-    final user = currentUser;
-    if (user == null) return null;
-    if (token.isEmpty) {
-      // Silent first — no popup if already authorized
-      GoogleSignInClientAuthorization? auth = await user.authorizationClient.authorizationForScopes(scopes);
+  Future<String?> refreshAccessToken() async {
+    if (currentUser == null) return null;
 
-      // Only show the consent popup if silent failed
-      auth ??= await user.authorizationClient.authorizeScopes(scopes);
-      token = auth.accessToken;
+    GoogleSignInClientAuthorization? auth = await currentUser!.authorizationClient.authorizationForScopes(scopes);
+
+    // Expired — need user gesture to re-authorize
+    if (auth == null) {
+      accessToken = null;
+      notifyListeners();
+      return null;
     }
-    return token;
+
+    accessToken = auth.accessToken;
+    notifyListeners();
+    return accessToken;
   }
 }

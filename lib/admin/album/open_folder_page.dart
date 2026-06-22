@@ -35,7 +35,7 @@ class _OpenFolderPageState extends State<OpenFolderPage> {
   }
 
   Future<String?> getToken() {
-    return context.read<AuthService>().getAccessToken();
+    return context.read<AuthService>().refreshAccessToken();
   }
 
   Future<void> selectFolder() async {
@@ -99,7 +99,7 @@ class _OpenFolderPageState extends State<OpenFolderPage> {
                       return const SizedBox(width: 20);
                     }
                     final medias = snapshot.data!;
-                    final token = context.read<AuthService>().getAccessToken();
+                    final token = context.read<AuthService>().refreshAccessToken();
                     return FutureBuilder(
                       future: getToken(),
                       builder: (context, asyncSnapshot) {

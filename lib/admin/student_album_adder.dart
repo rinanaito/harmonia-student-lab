@@ -51,7 +51,7 @@ class _StudentAlbumAdderState extends State<StudentAlbumAdder> {
     if (selectedFolder == null) {
       return [];
     }
-    final token = await context.read<AuthService>().getAccessToken();
+    final token = await context.read<AuthService>().refreshAccessToken();
     if (token == null) return [];
     files = await GoogleDriveService().getFilesInFolder(token, selectedFolder!.id!);
     disposeFileNotifier();
