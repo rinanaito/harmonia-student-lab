@@ -6,9 +6,11 @@ import 'package:harmonia_flutter/models/student.dart';
 import 'package:harmonia_flutter/services/db_service.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:harmonia_flutter/services/google_drive_service.dart';
+import 'package:provider/provider.dart';
 
 import '../models/dfile.dart';
 import '../models/media.dart';
+import '../services/auth_service.dart';
 import 'album/folder_selector.dart';
 import 'album/media_tag_page.dart';
 
@@ -24,18 +26,19 @@ class _StudentAlbumAdderState extends State<StudentAlbumAdder> {
   Student? selectedStudent;
   drive.File? selectedFolder;
   List<drive.File> files = [];
-  List<String> selectedFileIds = [];
+  final ValueNotifier<List<String>> selectedFileNotifier = ValueNotifier<List<String>>([]);
+  List<ValueNotifier<bool>> listValueNotif = [];
 
   @override
   void initState() {
     super.initState();
   }
 
-  Future<void> selectFolder() async {
+  Future<void> chooseFolder() async {
     var folder = await Navigator.push(context, MaterialPageRoute(builder: (_) => FolderSelector(widget.album.key)));
     if (folder != null) {
+      selectedFileNotifier.value = [];
       setState(() {
-        selectedFileIds = [];
         selectedFolder = folder;
         widget.album.name = selectedFolder?.name ?? "";
         widget.album.studentId = selectedStudent?.key ?? "";
@@ -48,28 +51,55 @@ class _StudentAlbumAdderState extends State<StudentAlbumAdder> {
     if (selectedFolder == null) {
       return [];
     }
-    files = await GoogleDriveService().getFilesInFolder(selectedFolder!.id!);
+    final token = await context.read<AuthService>().getAccessToken();
+    if (token == null) return [];
+    files = await GoogleDriveService().getFilesInFolder(token, selectedFolder!.id!);
+    disposeFileNotifier();
+    List<String> selectedFileIds = selectedFileNotifier.value;
+    for (var file in files) {
+      listValueNotif.add(ValueNotifier<bool>(selectedFileIds.contains(file.id ?? "")));
+    }
     return files;
   }
 
-  void toggleFile(String fileId) {
-    setState(() {
-      if (selectedFileIds.contains(fileId)) {
-        selectedFileIds.remove(fileId);
-      } else {
-        selectedFileIds.add(fileId);
-      }
-    });
+  void toggleFile(String fileId, int index) {
+    // List<String> selectedFileIds = selectedFileNotifier.value;
+    if (selectedFileNotifier.value.contains(fileId)) {
+      selectedFileNotifier.value.remove(fileId);
+    } else {
+      selectedFileNotifier.value.add(fileId);
+    }
+    listValueNotif[index].value = selectedFileNotifier.value.contains(fileId);
   }
 
   void selectAll() {
-    setState(() {
-      if (selectedFileIds.isEmpty) {
-        selectedFileIds = files.map((e) => e.id ?? "").toList();
-      } else {
-        selectedFileIds = [];
+    List<String> selectedFileIds = selectedFileNotifier.value;
+    if (selectedFileIds.isEmpty) {
+      selectedFileIds = files.map((e) => e.id ?? "").toList();
+      for (var n in listValueNotif) {
+        n.value = true;
       }
-    });
+    } else {
+      selectedFileIds = [];
+      for (var n in listValueNotif) {
+        n.value = false;
+      }
+    }
+    selectedFileNotifier.value = selectedFileIds;
+  }
+
+  void disposeFileNotifier() {
+    for (var n in listValueNotif) {
+      n.dispose();
+    }
+    listValueNotif = [];
+  }
+
+  @override
+  void dispose() {
+    disposeFileNotifier();
+    selectedFileNotifier.dispose();
+    super.dispose();
   }
 
   @override
@@ -88,7 +118,6 @@ class _StudentAlbumAdderState extends State<StudentAlbumAdder> {
               stream: dbService().getStudents(),
               builder: (context, asyncSnapshot) {
                 var students = asyncSnapshot.data ?? [];
-                // selectedStudent = students.firstWhere((s) => s.key == widget.album.studentId);
 
                 return DropdownButtonFormField(
                   value: widget.album.studentId.isNotEmpty ? widget.album.studentId : null,
@@ -109,6 +138,8 @@ class _StudentAlbumAdderState extends State<StudentAlbumAdder> {
                   onChanged: (v) {
                     selectedStudent = students.firstWhere((s) => s.key == v);
                     widget.album.studentId = selectedStudent?.key ?? "";
+                    selectedFileNotifier.value = ["#"];
+                    selectAll();
                     if (selectedFolder != null) {
                       setState(() {
                         widget.album.name = selectedFolder?.name ?? "";
@@ -126,7 +157,7 @@ class _StudentAlbumAdderState extends State<StudentAlbumAdder> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.indigoAccent),
                     onPressed: () {
-                      selectFolder();
+                      chooseFolder();
                     },
                     child: Text(widget.album.name.isEmpty ? "Folder сонгох" : widget.album.name),
                   ),
@@ -149,15 +180,15 @@ class _StudentAlbumAdderState extends State<StudentAlbumAdder> {
                           onPressed: () {
                             selectAll();
                           },
-                          child: Row(
-                            children: [
-                              Icon(selectedFileIds.isEmpty ? Icons.library_add_check_outlined : Icons.indeterminate_check_box_sharp),
-                              SizedBox(height: 5),
-                              Text(selectedFileIds.isEmpty ? "Select all" : "Select none"),
-                            ],
+                          child: ValueListenableBuilder<List<String>>(
+                            valueListenable: selectedFileNotifier,
+                            builder: (context, value, child) {
+                              return Row(children: [Icon(value.isEmpty ? Icons.library_add_check_outlined : Icons.indeterminate_check_box_sharp), SizedBox(height: 5), Text(value.isEmpty ? "Select all" : "Select none")]);
+                            },
                           ),
                         ),
                       ),
+
                       Expanded(
                         child: FutureBuilder(
                           future: getFiles(),
@@ -180,48 +211,51 @@ class _StudentAlbumAdderState extends State<StudentAlbumAdder> {
                               itemCount: files.length ?? 0,
                               itemBuilder: (context, index) {
                                 var file = folderFiles[index];
-                                return GestureDetector(
-                                  onLongPress: () {
-                                    Navigator.push(context, MaterialPageRoute(builder: (_) => MediaTagPage([file], Album(), showedIndex: 0)));
-                                  },
-                                  onTap: () {
-                                    toggleFile(file.id ?? "");
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      children: [
-                                        SizedBox(
-                                          height: cell / 0.8 - 30,
-                                          width: cell,
-                                          child: Stack(
-                                            children: [
-                                              Positioned.fill(
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    border: BoxBorder.all(color: Colors.black12),
-                                                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                                                  ),
-                                                  child: CachedNetworkImage(
-                                                    imageUrl: file.thumbnailLink ?? "",
-                                                    placeholder: (context, url) => Center(child: CircularProgressIndicator()),
-                                                    fit: BoxFit.contain,
-                                                    errorWidget: (context, url, error) => Icon(Icons.error),
-                                                  ),
+
+                                return Column(
+                                  children: [
+                                    SizedBox(
+                                      height: cell / 0.8,
+                                      width: cell,
+                                      child: Stack(
+                                        children: [
+                                          Positioned.fill(
+                                            child: GestureDetector(
+                                              onLongPress: () {
+                                                Navigator.push(context, MaterialPageRoute(builder: (_) => MediaTagPage([file], Album(), showedIndex: 0)));
+                                              },
+                                              onTap: () {
+                                                toggleFile(file.id ?? "", index);
+                                              },
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  border: BoxBorder.all(color: Colors.black12),
+                                                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                                                ),
+                                                child: CachedNetworkImage(
+                                                  imageUrl: file.thumbnailLink ?? "",
+                                                  placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                                                  fit: BoxFit.contain,
+                                                  errorWidget: (context, url, error) => Icon(Icons.error),
                                                 ),
                                               ),
-                                              Positioned(
-                                                right: 15,
-                                                top: 15,
-                                                child: Icon(selectedFileIds.contains(file.id ?? "") ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded, color: Colors.blueAccent, size: 30),
-                                              ),
-                                            ],
+                                            ),
                                           ),
-                                        ),
-                                        Text(file.name ?? "", maxLines: 1, overflow: TextOverflow.ellipsis),
-                                      ],
+                                          Positioned(
+                                            right: 15,
+                                            top: 15,
+                                            child: ValueListenableBuilder<bool>(
+                                              valueListenable: listValueNotif[index],
+                                              builder: (context, value, child) {
+                                                return Icon(value ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded, color: Colors.blueAccent, size: 30);
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
+                                    Text(file.name ?? "", maxLines: 1, overflow: TextOverflow.ellipsis),
+                                  ],
                                 );
                               },
                             );
@@ -232,21 +266,23 @@ class _StudentAlbumAdderState extends State<StudentAlbumAdder> {
                   ),
                 ),
               ),
-
-            const SizedBox(height: 18),
-
+            const SizedBox(height: 10),
             SizedBox(
               width: double.infinity,
-              height: 55,
-              child: ElevatedButton(
-                onPressed: () {
-                  save();
+              child: ValueListenableBuilder<List<String>>(
+                valueListenable: selectedFileNotifier,
+                builder: (context, value, child) {
+                  return ElevatedButton(
+                    onPressed: selectedStudent != null ? save : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.amber,
+                      disabledBackgroundColor: Colors.grey,
+                      disabledForegroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                    ),
+                    child: const Text("Save Changes", style: TextStyle(color: Colors.black)),
+                  );
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                ),
-                child: const Text("Save Changes", style: TextStyle(color: Colors.black)),
               ),
             ),
           ],
@@ -257,7 +293,8 @@ class _StudentAlbumAdderState extends State<StudentAlbumAdder> {
 
   Future<void> save() async {
     try {
-      if (selectedFileIds.isNotEmpty && files.isNotEmpty && selectedStudent != null) {
+      List<String> selectedFileIds = selectedFileNotifier.value;
+      if (selectedFileIds.isNotEmpty && selectedStudent != null) {
         for (var file in files) {
           if (selectedFileIds.contains(file.id ?? "")) {
             dbService().addFile(
@@ -267,10 +304,10 @@ class _StudentAlbumAdderState extends State<StudentAlbumAdder> {
                 ..thumbnail = file.thumbnailLink ?? ""
                 ..type = file.extension ?? "",
             );
+            var m = Media(studentId: selectedStudent!.key, fileId: file.id ?? "", folderId: widget.album.key);
+            dbService().addMedia(m);
+            dbService().addAlbum(widget.album);
           }
-          var m = Media(studentId: selectedStudent!.key, fileId: file.id ?? "", folderId: widget.album.key);
-          dbService().addMedia(m);
-          dbService().addAlbum(widget.album);
         }
         selectAll();
       }
