@@ -10,7 +10,6 @@ import 'package:provider/provider.dart';
 
 import '../models/dfile.dart';
 import '../models/media.dart';
-import '../services/auth_service.dart';
 import 'album/folder_selector.dart';
 import 'album/media_tag_page.dart';
 
@@ -51,9 +50,7 @@ class _StudentAlbumAdderState extends State<StudentAlbumAdder> {
     if (selectedFolder == null) {
       return [];
     }
-    final token = await context.read<AuthService>().refreshAccessToken();
-    if (token == null) return [];
-    files = await GoogleDriveService().getFilesInFolder(token, selectedFolder!.id!);
+    files = await GoogleDriveService().getFilesInFolder(selectedFolder!.id!);
     disposeFileNotifier();
     List<String> selectedFileIds = selectedFileNotifier.value;
     for (var file in files) {
