@@ -2,14 +2,13 @@ import 'dart:async';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:harmonia_flutter/main.dart';
-import 'package:harmonia_flutter/parent/parent_folder_page.dart';
-import 'package:harmonia_flutter/services/db_service.dart';
 
 import '../../models/album.dart';
 import '../admin/student_album_adder.dart';
 import '../models/media.dart';
 import '../models/student.dart';
+import '../services/db_service.dart';
+import 'parent_folder_page.dart';
 
 class ParentAlbumPage extends StatelessWidget {
   late Student student;
@@ -57,7 +56,7 @@ class ParentAlbumPage extends StatelessWidget {
                     var studentMedia = snapshot.data ?? [];
 
                     return StreamBuilder<List<Album>>(
-                      stream: db.getAlbums(),
+                      stream: dbService().getAlbums(),
 
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) {

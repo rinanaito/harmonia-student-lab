@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:harmonia_flutter/main.dart';
 
 import '../../models/album.dart';
 import '../../models/media.dart';
@@ -108,7 +107,7 @@ class _AlbumListPageState extends State<AlbumListPage> {
 
               Expanded(
                 child: StreamBuilder<List<Album>>(
-                  stream: db.getAlbums(),
+                  stream: dbService().getAlbums(),
 
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {

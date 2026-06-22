@@ -3,13 +3,13 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
-import 'package:harmonia_flutter/services/db_service.dart';
-import 'package:web/web.dart' as web;
 
 import '../../models/album.dart';
 import '../../models/dfile.dart';
 import '../../models/media.dart';
 import '../../models/student.dart';
+import '../../platform/platform.dart';
+import '../../services/db_service.dart';
 import '../../services/google_drive_service.dart';
 import 'multi_tag_selector.dart';
 
@@ -40,8 +40,8 @@ class _MediaTagPageState extends State<MediaTagPage> {
     });
   }
 
-  void openNewTab(String url) {
-    web.window.open(url, '_blank', 'noopener,noreferrer');
+  void openTab(String url) {
+    openNewTab(url);
   }
 
   @override
@@ -61,7 +61,7 @@ class _MediaTagPageState extends State<MediaTagPage> {
         child: Icon(Icons.check),
       ),
       appBar: AppBar(
-        title: GestureDetector(onTap: () => openNewTab("https://drive.google.com/file/d/${selectedFile?.id ?? ""}/view"), child: Text(selectedFile?.name ?? "")),
+        title: GestureDetector(onTap: () => openTab("https://drive.google.com/file/d/${selectedFile?.id ?? ""}/view"), child: Text(selectedFile?.name ?? "")),
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -93,7 +93,7 @@ class _MediaTagPageState extends State<MediaTagPage> {
                           placeholder: (context, _) => const CircularProgressIndicator(strokeWidth: 2),
                           errorWidget: (context, _, __) => Center(
                             child: GestureDetector(
-                              onTap: () => openNewTab("https://drive.google.com/thumbnail?id=${selectedFile?.id ?? ""}&sz=w1200"),
+                              onTap: () => openTab("https://drive.google.com/thumbnail?id=${selectedFile?.id ?? ""}&sz=w1200"),
                               child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.broken_image), SizedBox(height: 5), Text("Couldn't load,\nview to CLICK")]),
                             ),
                           ),

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:harmonia_flutter/main.dart';
+import 'package:harmonia/services/db_service.dart';
 
 import '../models/student.dart';
 import '../parent/parent_album_page.dart';
@@ -35,7 +35,7 @@ class StudentListPage extends StatelessWidget {
 
               Expanded(
                 child: StreamBuilder<List<Student>>(
-                  stream: db.getStudents(),
+                  stream: dbService().getStudents(),
 
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {

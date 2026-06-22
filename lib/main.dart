@@ -6,16 +6,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 
-import 'package:harmonia_flutter/home.dart';
-import 'package:harmonia_flutter/privacy_page.dart';
-import 'package:harmonia_flutter/services/db_service.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
-import 'package:harmonia_flutter/services/google_drive_service.dart';
-import 'package:harmonia_flutter/terms_page.dart';
+import 'package:harmonia/services/db_service.dart';
 import 'package:provider/provider.dart';
 
 import 'admin.dart';
 import 'firebase_options.dart';
+import 'privacy_page.dart';
+import 'services/google_drive_service.dart';
+import 'terms_page.dart';
 
 late DatabaseReference dbRef;
 final db = dbService();
@@ -45,7 +44,7 @@ Future<void> main() async {
       break;
 
     default:
-      page = HarmoniaScreen();
+      page = AdminScreen();
   }
 
   runApp(ChangeNotifierProvider(create: (_) => GoogleDriveService(), child: MyApp(page)));

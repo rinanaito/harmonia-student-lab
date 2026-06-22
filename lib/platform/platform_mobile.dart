@@ -1,0 +1,1 @@
+void openNewTab(String url) {}

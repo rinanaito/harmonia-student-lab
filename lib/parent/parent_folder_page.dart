@@ -1,17 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:harmonia_flutter/admin/album/folder_selector.dart';
-import 'package:harmonia_flutter/models/album.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
-import 'package:harmonia_flutter/models/media.dart';
-import 'package:harmonia_flutter/services/db_service.dart';
-import 'package:harmonia_flutter/services/google_drive_service.dart';
-import 'package:web/web.dart' as web;
 
 import 'package:flutter_html/flutter_html.dart';
 
+import '../models/album.dart';
+import '../models/media.dart';
 import '../models/student.dart';
+import '../platform/platform.dart';
+import '../services/db_service.dart';
 
 class ParentFolderPage extends StatelessWidget {
   late Student student;
@@ -20,8 +18,8 @@ class ParentFolderPage extends StatelessWidget {
 
   ParentFolderPage(this.student, this.album, this.medias, {super.key});
 
-  void openNewTab(String id) {
-    web.window.open("https://drive.google.com/file/d/$id/view", '_blank', 'noopener,noreferrer');
+  void openTab(String id) {
+    openNewTab("https://drive.google.com/file/d/$id/view");
   }
 
   @override
@@ -60,7 +58,7 @@ class ParentFolderPage extends StatelessWidget {
                       final file = files.firstWhere((e) => e.key == media.fileId);
                       return GestureDetector(
                         onTap: () {
-                          openNewTab(media.fileId);
+                          openTab(media.fileId);
                         },
                         child: Center(
                           child: Column(

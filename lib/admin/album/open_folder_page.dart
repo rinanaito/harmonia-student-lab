@@ -1,14 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:harmonia_flutter/admin/album/folder_selector.dart';
-import 'package:harmonia_flutter/models/album.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
-import 'package:harmonia_flutter/services/db_service.dart';
-import 'package:harmonia_flutter/services/google_drive_service.dart';
 import 'package:provider/provider.dart';
 
+import '../../models/album.dart';
 import '../../services/db_service.dart';
+import '../../services/google_drive_service.dart';
+import 'folder_selector.dart';
 import 'media_tag_page.dart';
 
 class OpenFolderPage extends StatefulWidget {

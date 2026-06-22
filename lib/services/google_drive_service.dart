@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
@@ -25,10 +26,19 @@ class GoogleDriveService extends ChangeNotifier {
       }
       return;
     }
-    account = await googleSignIn.signIn();
+    print("account");
+    account = await googleSignIn.signIn().then(
+      (a) {
+        return a;
+      },
+      onError: (e) {
+        print("account " + e.toString());
+      },
+    );
     if (account != null) {
       getClient();
     }
+    print("account");
     logged = account != null;
     if (callback != null) {
       callback();

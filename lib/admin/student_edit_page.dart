@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:harmonia_flutter/main.dart';
-import 'package:harmonia_flutter/models/student.dart';
+import 'package:harmonia/services/db_service.dart';
+
+import '../models/student.dart';
 
 class StudentEditPage extends StatefulWidget {
   Student student;
@@ -95,7 +96,7 @@ class _StudentEditPageState extends State<StudentEditPage> {
     student.group = "2026-06";
 
     try {
-      await db.updateStudent(student);
+      await dbService().updateStudent(student);
 
       if (!context.mounted) return;
 

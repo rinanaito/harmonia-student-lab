@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:harmonia_flutter/admin/student_list_page.dart';
-import 'package:harmonia_flutter/services/google_button.dart';
-import 'package:harmonia_flutter/services/google_drive_service.dart';
 import 'package:provider/provider.dart';
 
 import 'admin/album/album_list_page.dart';
+import 'admin/student_list_page.dart';
+import 'services/google_button.dart';
+import 'services/google_drive_service.dart';
 
 class AdminScreen extends StatelessWidget {
   const AdminScreen({super.key});

@@ -15,7 +15,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "260244666959-78hv3i9er9rq45c32kd5f98uo33h4o2q.apps.googleusercontent.com",
+          "client_id": "260244666959-bk6p12g3om2n6pml84604jk7vhcv8pop.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "mn.harmonia.flutter.harmonia_flutter",
+            "certificate_hash": "5d96261d22a749842fe68d3d204f41824b438bd8"
+          }
+        },
+        {
+          "client_id": "260244666959-vcqff8dcal89rsssmjq8iesaofee5ied.apps.googleusercontent.com",
           "client_type": 3
         }
       ],

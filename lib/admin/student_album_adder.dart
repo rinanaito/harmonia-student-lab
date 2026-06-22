@@ -1,15 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:harmonia_flutter/main.dart';
-import 'package:harmonia_flutter/models/album.dart';
-import 'package:harmonia_flutter/models/student.dart';
-import 'package:harmonia_flutter/services/db_service.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
-import 'package:harmonia_flutter/services/google_drive_service.dart';
 import 'package:provider/provider.dart';
 
 import '../models/dfile.dart';
+import '../models/album.dart';
+import '../models/student.dart';
 import '../models/media.dart';
+import '../services/db_service.dart';
+import '../services/google_drive_service.dart';
 import 'album/folder_selector.dart';
 import 'album/media_tag_page.dart';
 
